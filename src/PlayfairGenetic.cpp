@@ -23,6 +23,7 @@ int PlayfairGenetic::initializePopulationRandom(int popSize, vector<string> &pop
 	return 0;
 }
 
+
 int PlayfairGenetic::initializePopulationSeed(int popSize, vector<string> &population, std::mt19937 &rng, string seed) {
 	population.clear();
 	population.reserve(popSize);
@@ -36,7 +37,7 @@ int PlayfairGenetic::initializePopulationSeed(int popSize, vector<string> &popul
 
 
 int PlayfairGenetic::printPopulation(vector<string> &population) {
-	for(int i = 0; i < population.size(); i++) {
+	for(int i = 0; i < (int)population.size(); i++) {
 		std::cout << population.at(i) << '\n';
 		vector<char> child(population.at(i).begin(), population.at(i).end());
 		validKey(child);
@@ -71,10 +72,18 @@ int PlayfairGenetic::nextGeneration(const NGrams &standardFreq, vector<string> &
 	} catch(InvalidKeyException e) {
 		std::cerr << "Mutation step produced an invalid key." << '\n';
 		throw;
+	} catch(InvalidParameters e) {
+		std::cerr << e.getMessage() << '\n';
 	}
 	return 0;
 }
 
+std::pair<string, double> PlayfairGenetic::bestMember(const NGrams &standardFreq, const vector<string> &population, const vector<char> &cipherText) {
+	vector<int> scores = fitnessPopulation(standardFreq, population, cipherText);
+	int best = std::distance(scores.begin(), std::max_element(scores.begin(), scores.end()));
+
+	return std::pair<string, double> (population.at(best), scores.at(best));
+}
 
 string PlayfairGenetic::randomKey(std::mt19937 &rng) {
 	string alphabet = ALPHABET;
@@ -86,10 +95,10 @@ string PlayfairGenetic::seedKey(std::mt19937 &rng, string seed) {
 	unordered_map<char, bool> letterUsed;
 	string alphabet = ALPHABET;
 	string key;
-	for(int i = 0; i < alphabet.length(); i++) {
+	for(int i = 0; i < (int)alphabet.length(); i++) {
 		letterUsed[toupper(alphabet.at(i))] = false;
 	}
-	for(int i = 0; i < seed.length(); i++) {
+	for(int i = 0; i < (int)seed.length(); i++) {
 		char letter = toupper(seed.at(i));
 		if(isalpha(letter)) {
 			if(!letterUsed[letter])
@@ -142,14 +151,14 @@ std::pair<int, int> PlayfairGenetic::selectParents(const NGrams &standardFreq, v
 	std::pair<int, int> p(selection, selection2);
 	return p;
 }
+
 vector<int> PlayfairGenetic::fitnessPopulation(const NGrams &standardFreq, const vector<string> &population, const vector<char> &cipherText) {
 	int n = standardFreq.n;
 	vector<int> scores;
 	FrequencyCollector fCollector;
 	for(auto it = population.begin(); it != population.end(); ++it) {
 		NGrams testFreq {n};
-		int testCount;
-
+		
 		Key key(*it);
 		vector<char> pText = key.decrypt(cipherText);        ;
 		stringstream pTextStream(string(pText.begin(), pText.end()));
@@ -159,11 +168,17 @@ vector<int> PlayfairGenetic::fitnessPopulation(const NGrams &standardFreq, const
 	}
 	return scores;
 }
+
 int PlayfairGenetic::fitness(const NGrams &standardFreq, const NGrams testFreq) {
+	// S = frequency of ngram for standard
+	// T = frequency of ngram for test
+	
+	// frequency = 1 / sum{|S - T|^2}
+
 	int n = standardFreq.n;
 	double fitness = 0;
-	if(standardFreq.freqs.empty() || testFreq.freqs.empty()) return -1;
-	if((standardFreq.freqs.begin()->first.length() != n) || (testFreq.freqs.begin()->first.length() != n)) return -2;
+	if(standardFreq.freqs->empty() || testFreq.freqs->empty()) return -1;
+	if(((int)standardFreq.freqs->begin()->first.length() != n) || ((int)testFreq.freqs->begin()->first.length() != n)) return -2;
 
 	//  Iterate through all permutations of n letters
 	//  perms[] is used like an odometer
@@ -187,13 +202,13 @@ int PlayfairGenetic::fitness(const NGrams &standardFreq, const NGrams testFreq) 
 
 		//  Collect the standard and test rate of permutation
 		double standardF, testF;
-		auto sF = standardFreq.freqs.find(perm);
-		if(sF != standardFreq.freqs.end())
+		auto sF = standardFreq.freqs->find(perm);
+		if(sF != standardFreq.freqs->end())
 			standardF = double(sF->second) / standardFreq.count;
 		else
 			standardF = 0;
-		auto tF = testFreq.freqs.find(perm);
-		if(tF != testFreq.freqs.end())
+		auto tF = testFreq.freqs->find(perm);
+		if(tF != testFreq.freqs->end())
 			testF = double(tF->second) / testFreq.count;
 		else
 			testF = 0;
@@ -204,8 +219,6 @@ int PlayfairGenetic::fitness(const NGrams &standardFreq, const NGrams testFreq) 
 	//  Right now, lower fitness is better. Let's take the inverse. Now higher is better.
 	return int(floor(1 / fitness));
 }
-
-
 
 int PlayfairGenetic::crossover(vector<string> &population, const GenerationParams &genParams, std::mt19937 rng) {
 	string p1 = population.at(0);
@@ -219,14 +232,14 @@ int PlayfairGenetic::crossover(vector<string> &population, const GenerationParam
 		unordered_map<char, bool> letterUsed;
 		vector<char> key(p1.begin(), p1.end());
 		vector<bool> letterKeep(key.size(), false);
-		for(int index = 0; index < key.size(); index++) {            
+		for(int index = 0; index < (int)key.size(); index++) {            
 			if(uid(rng)) {
 				letterKeep[index] = true;
 				letterUsed.insert(std::make_pair(key.at(index), true));
 			}
 		}
 		auto p2gene = p2.begin();
-		for(int index = 0; index < key.size(); index++) {
+		for(int index = 0; index < (int)key.size(); index++) {
 			if(!letterKeep.at(index)) {
 				while(letterUsed.find(*p2gene) != letterUsed.end()) {
 					++p2gene;
@@ -243,20 +256,19 @@ int PlayfairGenetic::crossover(vector<string> &population, const GenerationParam
 	return 0;
 }
 
-//	Fix this return/th
 int PlayfairGenetic::mutation(vector<string> &population, const GenerationParams &genParams, std::mt19937 rng) {
 	switch(genParams.mutationType) {
-		case 0: {
-			for(int index = 0; index < population.size(); index++) {
+		case SWAP: {
+			for(int index = 0; index < (int)population.size(); index++) {
 				string key = population.at(index);
 				swapMutation(key, genParams, rng);
 				population.at(index) = key;
 			}
 			break;
 		}
-		case 1: {
+		case INVERSION: {
 			std::uniform_real_distribution<double> urd(0.0, 1.0);
-			for(int index = 0; index < population.size(); index++) {
+			for(int index = 0; index < (int)population.size(); index++) {
 				double rand = urd(rng);
 				if(rand < genParams.mutationRate) {
 					string key = population.at(index);
@@ -268,7 +280,7 @@ int PlayfairGenetic::mutation(vector<string> &population, const GenerationParams
 		}
 		default: {
 			std::cerr << "Invalid mutationType: " << genParams.mutationType << '\n';
-			return -11;
+			throw InvalidParameters("Invalid Parameters: mutationType");
 		}
 	}
 	return 0;
@@ -278,7 +290,7 @@ int PlayfairGenetic::swapMutation(string &key, const GenerationParams &genParams
 	vector<char> swapLetters;
 	vector<char> swapIndicies;
 	std::uniform_real_distribution<double> urd(0.0, 1.0);
-	for(int index = 0; index < key.size(); index++) {
+	for(int index = 0; index < (int)key.size(); index++) {
 		double rand = urd(rng);
 		if(rand < genParams.mutationRate) {
 			swapLetters.push_back(key.at(index));
@@ -286,7 +298,7 @@ int PlayfairGenetic::swapMutation(string &key, const GenerationParams &genParams
 		}
 	}
 	shuffle(swapLetters.begin(), swapLetters.end(), rng);
-	for(int i = 0; i < swapIndicies.size(); i++) {
+	for(int i = 0; i < (int)swapIndicies.size(); i++) {
 		key.at(swapIndicies.at(i)) = swapLetters.at(i);
 	}
 	if(!validKey(key)) {
@@ -318,7 +330,7 @@ bool PlayfairGenetic::validKey(T key) {
 	if(key.size() != 25) return false;
 
 	unordered_map<char, int> letterUsed;
-	for(int index = 0; index < key.size(); index++) {
+	for(int index = 0; index < (int)key.size(); index++) {
 		//	If the letter has alreay been put in
 		if(letterUsed.find(key.at(index)) != letterUsed.end()) {
 			return false;
@@ -333,25 +345,4 @@ int PlayfairGenetic::sumVectorInt(vector<int> vec) {
 	for(auto it = vec.begin(); it != vec.end(); ++it)
 		total += *it;
 	return total;
-}
-
-
-std::ifstream::pos_type PlayfairGenetic::fileSize(const string fileName) {
-	std::ifstream in(fileName, std::ifstream::ate | std::ifstream::binary);
-	return in.tellg(); 
-}
-
-int PlayfairGenetic::readFile(const string fileName, vector<char> &text) {
-	text.clear();
-	text.reserve(fileSize(fileName));
-	std::ifstream fileReader(fileName);
-	if(!fileReader) {
-		std::cerr << fileName << " can not be opened." << '\n';
-		return -1;
-	}
-	char ch;
-	while(fileReader.get(ch)) {
-		text.push_back(ch);
-	}
-	return 0;
 }

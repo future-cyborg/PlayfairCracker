@@ -15,7 +15,7 @@ int FrequencyCollector::readNgramCount(char fileName[], NGrams &nGrams) {
 
 	int numLines = numFileLines(fileName);
 	if(numLines < 0) return numLines;	
-	nGrams.freqs.reserve(numLines);
+	nGrams.freqs->reserve(numLines);
 
 	std::ifstream fileReader(fileName);
 
@@ -24,7 +24,7 @@ int FrequencyCollector::readNgramCount(char fileName[], NGrams &nGrams) {
 		std::cerr << fileName << " can not be opened." << '\n';
 		return -1;
 	}
-	int counter = 1;
+
 	while(!fileReader.eof()) {
 		//	Read each line, split line into - n-gram and count
 		std::string line, ngramString, countString;
@@ -38,7 +38,7 @@ int FrequencyCollector::readNgramCount(char fileName[], NGrams &nGrams) {
 		nGrams.count += count;
 
 		// 	If the n-gram read was of the wrong length.
-		if(ngramString.size() != n) {
+		if((int)ngramString.size() != n) {
 			std::cerr << "Ngram length contradiction!" << '\n';
 			std::cerr << "  Ngram read from " << fileName << " was of length: " << ngramString.size() << '\n';
 			std::cerr << "  Ngram length expected: " << n << '\n';
@@ -50,7 +50,7 @@ int FrequencyCollector::readNgramCount(char fileName[], NGrams &nGrams) {
 			ngram[i] = ngramString.at(i);
 		}
 		// 	Add ngram:count to hashmap nGrams
-		nGrams.freqs.insert(std::make_pair(ngram, count));
+		nGrams.freqs->insert(std::make_pair(ngram, count));
 	}
 	return 0;
 }
@@ -62,7 +62,7 @@ int FrequencyCollector::writeNGramCount(char fileName[], NGrams &nGrams) {
 		return -1;
 	}
 
-	for(auto it = nGrams.freqs.begin(); it != nGrams.freqs.end(); ++it) {
+	for(auto it = nGrams.freqs->begin(); it != nGrams.freqs->end(); ++it) {
 		fileWriter << it->first << " " << it->second << '\n';
 	}
 	return 0;
@@ -120,7 +120,7 @@ int FrequencyCollector::collectNGrams(std::stringstream &buffer, NGrams &nGrams)
 			ngram.push_back(queue[(curPos + i) % n]);
 		}
 		// 	Count how many times that n-gram occurs
-		nGrams.freqs[ngram] ++;
+		nGrams.freqs->at(ngram) ++;
 	}
 	delete[] queue;
 	return 0;
@@ -141,7 +141,7 @@ int FrequencyCollector::numFileLines(char* fileName) {
 	return numLines;
 }
 int FrequencyCollector::printNGrams(NGrams &nGrams) {
-    for(auto it = nGrams.freqs.begin(); it != nGrams.freqs.end(); ++it) {
+    for(auto it = nGrams.freqs->begin(); it != nGrams.freqs->end(); ++it) {
         std::cout << it->first << " " << it->second << '\n';
     }
     return 0;

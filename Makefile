@@ -18,14 +18,18 @@ TARBALL=../$(PACKAGEDIR).tar.gz
 all: playfair playfairCracker doc
 
 playfair: $(OBJDIR)/playfair.o $(OBJDIR)/Key.o $(INCDIR)/optionparser.h
-	$(CMD) $(OBJDIR)/playfair.o $(OBJDIR)/Key.o -o $@ 
+	$(CMD) $(OBJDIR)/playfair.o $(OBJDIR)/Key.o -o $@
 
 $(OBJDIR)/playfair.o: $(SRCDIR)/playfair.cpp $(INCDIR)/Key.h $(INCDIR)/optionparser.h
 	$(CMD) -c $< -o $@
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(INCDIR)/%.h
+playfairCracker: $(OBJDIR)/playfairCracker.o $(OBJDIR)/PlayfairGenetic.o $(OBJDIR)/Key.o $(INCDIR)/helpers.h $(OBJDIR)/FrequencyCollector.o
+	$(CMD) $(OBJDIR)/playfairCracker.o $(OBJDIR)/PlayfairGenetic.o $(OBJDIR)/Key.o $(OBJDIR)/FrequencyCollector.o -o $@
+
+$(OBJDIR)/playfairCracker.o: $(SRCDIR)/playfairCracker.cpp $(INCDIR)/Key.h $(INCDIR)/helpers.h $(INCDIR)/PlayfairGenetic.h $(INCDIR)/FrequencyCollector.h
 	$(CMD) -c $< -o $@
 
-playfairCracker:
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(INCDIR)/%.h
+	$(CMD) -c $< -o $@
 
 doc:

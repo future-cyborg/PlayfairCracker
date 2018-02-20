@@ -6,7 +6,7 @@ Key::Key(char doubleFill, char extraFill, char omitLetter, char replaceLetter) :
 	Key(NULL, doubleFill, extraFill, omitLetter, replaceLetter) { }
 	
 Key::Key(std::string keyw, char doubleFill, char extraFill, char omitLetter, char replaceLetter) :
-	keyword(keyw), key {}, letterPlace(25) {
+	keyword{keyw}, key {}, letterPlace{25} {
 
 	if(isalpha(doubleFill))
 		bufferDouble = toupper(doubleFill);

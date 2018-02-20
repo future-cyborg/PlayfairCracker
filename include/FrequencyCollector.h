@@ -9,9 +9,9 @@
         2 - Length of ngrams found in file differ from arguement n
 */
 struct NGrams {
-    const int n;
+    int n;
     int count;
-    std::unordered_map<std::string, int> freqs;
+    std::unordered_map<std::string, int> *freqs;
 };
 
 class FrequencyCollector {
