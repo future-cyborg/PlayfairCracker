@@ -8,10 +8,11 @@
         1 - File can not be opened
         2 - Length of ngrams found in file differ from arguement n
 */
+typedef unsigned long long count_t;
 struct NGrams {
     int n;
-    int count;
-    std::unordered_map<std::string, int> *freqs;
+    count_t count;
+    std::unordered_map<std::string, count_t> *freqs;
 };
 
 class FrequencyCollector {
@@ -25,11 +26,14 @@ public:
         ABCD 17
         ABFT 12
         ABCA 19      */
+    // Throws exception
     int readNgramCount(char fileName[], NGrams &nGrams);
 
+    // Throws exception
     int writeNGramCount(char fileName[], NGrams &nGrams);
 
     //  This will collect ngrams from fileRead and write them to fileWrite
+    // Throws exception
     int setNGramCount(int n, char fileRead[], char fileWrite[]);
 
     //  Puts file into stream and calls collectFrequencies
@@ -37,6 +41,7 @@ public:
     //  Return codes:
     //  0 - Normal
     //  1 - File can not be opened
+    // Throws exception
     int collectNGramsFile(char fileName[], NGrams &nGrams);
 
     //  Reads from stream and compiles map of ngram frequencies
@@ -45,9 +50,8 @@ public:
     int printNGrams(NGrams &nGrams);
 private:
     //  Returns the number of lines in a file
-    int numFileLines(char* fileName);
-    //  Returns true if ch is a letter
-    bool isLetter(char ch);
+    // Throws exception
+    unsigned long numFileLines(char* fileName);
 };
 
 #endif // FREQUENCYCOLLECTOR_H

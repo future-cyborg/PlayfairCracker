@@ -18,25 +18,9 @@ using std::unordered_map;
 using std::string;
 using std::stringstream;
 
-class InvalidKeyException {
-public:
-   InvalidKeyException(const char* msg = "InvalidKeyException") : e_msg(msg) {}
-  ~InvalidKeyException( ) {}
+typedef double score_t;
 
-   const char* getMessage( ) const {return(e_msg);}
-private:
-   const char* e_msg;
-};
 
-class InvalidParameters {
-public:
-	InvalidParameters(const char* msg = "Invalid Parameters") : e_msg{msg} {}
-	~InvalidParameters( ) {}
-
-	const char* getMessage( ) const {return(e_msg);}
-private:
-	const char* e_msg;
-};
 /*
 	--- PARAMETERS ---
 	These parameters are applied each generation	
@@ -99,7 +83,7 @@ public:
 	//	Prints given population
 	int printPopulation(vector<string> &population);
 
-	std::pair<string, double> bestMember(const NGrams &standardFreq, const vector<string> &population, const vector<char> &cipherText);
+	std::pair<string, score_t> bestMember(const NGrams &standardFreq, const vector<string> &population, const vector<char> &cipherText);
 
 private:
 	//	Produces a pseudo-random key	
@@ -113,10 +97,10 @@ private:
 			const GenerationParams &genParams, std::mt19937 rng);
 
 	//	Applies the fitness function on the entire population
-	vector<int> fitnessPopulation(const NGrams &standardFreq,
+	vector<score_t> fitnessPopulation(const NGrams &standardFreq,
 			const vector<string> &population, const vector<char> &cipherText);
 
-	int fitness(const NGrams &standardFreq, const NGrams testFreq);
+	score_t fitness(const NGrams &standardFreq, const NGrams testFreq);
 
 	int crossover(vector<string> &population, const GenerationParams &genParams,
 			std::mt19937 rng);
@@ -133,9 +117,11 @@ private:
 
 	//	Iterates using .at()
 	//	Used on string, vector<char>, etc.
-	template <typename T>
-	bool validKey(T key);
-	int sumVectorInt(vector<int> vec);
+	template <typename Iterable>
+	bool validKey(Iterable key);
+
+	template <typename Number>
+	Number sumVector(vector<Number> vec);
 };
 
 
