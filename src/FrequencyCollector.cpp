@@ -6,10 +6,52 @@
 #include <sstream>
 #include <unordered_map>
 #include <string.h>
+#include <regex>
+
+using std::string;
 
 FrequencyCollector::FrequencyCollector() {}
 
 FrequencyCollector::~FrequencyCollector() {}
+
+bool FrequencyCollector::validNgramFile(char fileName[], int N) {
+	try {
+		numFileLines(fileName);
+	} catch (const std::ifstream::failure e) {
+		std::cerr << e.what() << '\n';
+		return false;
+	}
+
+	std::ifstream fileReader(fileName);
+	if(fileReader.fail()) {
+		std::cerr << "Failed to open: " << fileName << '\n';
+		return false;
+	}
+
+	std::unordered_map<string, count_t> NGrams;
+	long lineNum = 1;
+	while(!fileReader.eof()) {
+		string line, ngramString, countString;
+		std::getline(fileReader, line);
+
+		std::regex format("^[[:alpha:]]{" + std::to_string(N) + "} [[:digit:]]+$");
+		if(!std::regex_match(line, format)) {
+			std::cerr << "Line " << lineNum << " of " << fileName << "is of wrong format";
+			return false;
+		}
+
+		string ngram = line.substr(0,N);
+		if(NGrams.find(ngram) != NGrams.end()) {
+			std::cerr << "Line " << lineNum << " of " <<fileName << "has duplicate: " <<
+				ngram << '\n';
+			return false;
+		}
+		NGrams.insert(std::make_pair(ngram, 0));
+
+		++ lineNum;
+	}
+	return true;
+}
 
 int FrequencyCollector::readNgramCount(char fileName[], NGrams &nGrams) {
 	int n = nGrams.n;
@@ -17,7 +59,7 @@ int FrequencyCollector::readNgramCount(char fileName[], NGrams &nGrams) {
 	unsigned long numLines;
 	try {
 		numLines = numFileLines(fileName);
-	} catch (std::ifstream::failure e) {
+	} catch (const std::ifstream::failure e) {
 		std::cerr << e.what() << '\n';
 		throw;
 	}
@@ -32,7 +74,7 @@ int FrequencyCollector::readNgramCount(char fileName[], NGrams &nGrams) {
 	
 	while(!fileReader.eof()) {
 		//	Read each line, split line into - n-gram and count
-		std::string line, ngramString, countString;
+		string line, ngramString, countString;
 		std::getline(fileReader, line);
 		// 	Split the line
 		std::stringstream ss(line);
@@ -123,7 +165,7 @@ int FrequencyCollector::collectNGrams(std::stringstream &buffer, NGrams &nGrams)
 		queue[curPos++] = toupper(ch);
 		curPos = curPos % n;
 		// 	Reorder the chars starting with curPos and wrapping
-		std::string ngram;
+		string ngram;
 		for(int i = 0; i < n; i++) {
 			ngram.push_back(queue[(curPos + i) % n]);
 		}
@@ -144,7 +186,7 @@ unsigned long FrequencyCollector::numFileLines(char* fileName) {
 		throw std::ios_base::failure(e);
 	}
 	
-	std::string buffer;
+	string buffer;
 	while(!fileReader.eof()) {
 		std::getline(fileReader, buffer);
 		++ numLines;

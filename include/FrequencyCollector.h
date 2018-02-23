@@ -20,6 +20,9 @@ public:
      FrequencyCollector();
     ~ FrequencyCollector();
     
+    //  Parses Ngram file and checks for proper format, and no duplicates.
+    bool validNgramFile(char fileName[], int N);
+    
     /*  Read file that contains n-gram counts for English frequency and set standardFreq
         The file read must be formatted so that every line contains one ngram, a single space,
             then the number of occurances of that ngram. Like so -
