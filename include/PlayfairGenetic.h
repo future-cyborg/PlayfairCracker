@@ -84,6 +84,8 @@ public:
 	int printPopulation(vector<string> &population);
 
 	std::pair<string, score_t> bestMember(const NGrams &standardFreq, const vector<string> &population, const vector<char> &cipherText);
+	vector<score_t> scores(const NGrams &standardFreq, const vector<string> &population, const vector<char> &cipherText);
+	score_t fitness(const NGrams &standardFreq, const NGrams testFreq);
 
 private:
 	//	Produces a pseudo-random key	
@@ -100,7 +102,7 @@ private:
 	vector<score_t> fitnessPopulation(const NGrams &standardFreq,
 			const vector<string> &population, const vector<char> &cipherText);
 
-	score_t fitness(const NGrams &standardFreq, const NGrams testFreq);
+	
 
 	int crossover(vector<string> &population, const GenerationParams &genParams,
 			std::mt19937 rng);

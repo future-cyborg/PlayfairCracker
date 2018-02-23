@@ -39,19 +39,22 @@ int PlayfairGenetic::initializePopulationSeed(int popSize, vector<string> &popul
 
 int PlayfairGenetic::printPopulation(vector<string> &population) {
 	for(int i = 0; i < (int)population.size(); i++) {
-		std::cout << population.at(i) << '\n';
-		vector<char> child(population.at(i).begin(), population.at(i).end());
+		std::cout << population[i] << '\n';
+		vector<char> child(population[i].begin(), population[i].end());
 		validKey(child);
 	}
 	return 0;
 }
 
-
 int PlayfairGenetic::nextGeneration(const NGrams &standardFreq, vector<string> &population, const vector<char> &cipherText, const GenerationParams &genParams, std::mt19937 rng) {
 	std::pair<int, int> parents = selectParents(standardFreq, population, cipherText, genParams, rng);
+	
 	string p1 = population.at(parents.first);
-	string p2 = population.at(parents.second);
+	string p2 = population.at(parents.second);	
 	population.clear();
+	population.push_back(p1);
+	population.push_back(p2);
+	//	We're going to add the parents twice. One copy gets mutated, the first two do not.
 	population.push_back(p1);
 	population.push_back(p2);
 
@@ -61,7 +64,6 @@ int PlayfairGenetic::nextGeneration(const NGrams &standardFreq, vector<string> &
 		std::cerr << "Crossover step produced an invalid key." << '\n';
 		throw;
 	}
-
 	if(genParams.newRandom > 0) {
 		vector<string> newPop;
 		initializePopulationRandom(genParams.newRandom, newPop, rng);
@@ -79,7 +81,13 @@ int PlayfairGenetic::nextGeneration(const NGrams &standardFreq, vector<string> &
 	return 0;
 }
 
-std::pair<string, score_t> PlayfairGenetic::bestMember(const NGrams &standardFreq, const vector<string> &population, const vector<char> &cipherText) {
+vector<score_t> PlayfairGenetic::scores(const NGrams &standardFreq, const vector<string> &population, const vector<char> &cipherText) {
+	return fitnessPopulation(standardFreq, population, cipherText);
+}
+
+std::pair<string, score_t> PlayfairGenetic::bestMember(const NGrams &standardFreq, const vector<string> &population,
+		const vector<char> &cipherText) {
+
 	vector<score_t> scores = fitnessPopulation(standardFreq, population, cipherText);
 	int best = std::distance(scores.begin(), std::max_element(scores.begin(), scores.end()));
 
@@ -88,7 +96,7 @@ std::pair<string, score_t> PlayfairGenetic::bestMember(const NGrams &standardFre
 
 string PlayfairGenetic::randomKey(std::mt19937 &rng) {
 	string alphabet = ALPHABET;
-	shuffle(alphabet.begin(), alphabet.end(), rng);
+	std::shuffle(alphabet.begin(), alphabet.end(), rng);
 	return alphabet;
 }
 
@@ -97,10 +105,10 @@ string PlayfairGenetic::seedKey(std::mt19937 &rng, string seed) {
 	string alphabet = ALPHABET;
 	string key;
 	for(int i = 0; i < (int)alphabet.length(); i++) {
-		letterUsed[toupper(alphabet.at(i))] = false;
+		letterUsed[toupper(alphabet[i])] = false;
 	}
 	for(int i = 0; i < (int)seed.length(); i++) {
-		char letter = toupper(seed.at(i));
+		char letter = toupper(seed[i]);
 		if(isalpha(letter)) {
 			if(!letterUsed[letter])
 				key.push_back(letter);
@@ -115,12 +123,12 @@ string PlayfairGenetic::seedKey(std::mt19937 &rng, string seed) {
 
 	string::iterator it = key.begin();
 	std::advance(it, seedLength);   
-	shuffle(it, key.end(), rng);
+	std::shuffle(it, key.end(), rng);
 	return key;
 }
 
-std::pair<int, int> PlayfairGenetic::selectParents(const NGrams &standardFreq, vector<string> &population, const vector<char> &cipherText, const GenerationParams &genParams, std::mt19937 rng) {
-	std::cout << "A" << std::endl;
+std::pair<int, int> PlayfairGenetic::selectParents(const NGrams &standardFreq, vector<string> &population,
+		const vector<char> &cipherText, const GenerationParams &genParams, std::mt19937 rng) {
 	vector<score_t> scores = fitnessPopulation(standardFreq, population, cipherText);
 	//	Kill off the worst
 	for(int index = 0; index < genParams.killWorst; index++) {
@@ -128,31 +136,38 @@ std::pair<int, int> PlayfairGenetic::selectParents(const NGrams &standardFreq, v
 		population.erase(population.begin()+worst);
 		scores.erase(scores.begin()+worst);
 	}
-	std::cout << "B" << std::endl;
+	// 	Update to parent selection. Subtracting lowestFitnessValue from all fitness scores,
+	//		then we use their proportions
+	score_t worst = scores.at(std::distance(scores.begin(), std::min_element(scores.begin(), scores.end())));
+	for(int index = 0; index < (int)scores.size(); index++) {
+		scores[index] = scores[index] - worst;
+	}
+
 	score_t scoreSum = sumVector(scores);
 
-	//  Get a random integer in range [0-scoreSum]
+	//  Get a random double in range [0-scoreSum]
 	std::uniform_real_distribution<score_t> uid(0,scoreSum);
 	score_t pSelect = uid(rng);
 	//  Select first parent
-	int selection = 0;
+	int selection = -1;
 	while(pSelect < scoreSum) {
-		pSelect += scores.at(selection++);
+		pSelect += scores.at(++selection);
 	}
-	std::cout << "C" << std::endl;
+
 	//  Select second parent
 	scoreSum -= scores.at(selection);
 	int selection2 = 0;
 	std::uniform_real_distribution<score_t> uid2(0,scoreSum);
 	pSelect = uid2(rng);
-	std::cout << "D" << std::endl;
 	while(pSelect < scoreSum) {
 		//  Don't pick the first parent twice
 		if(selection2 != selection)
-			pSelect += scores.at(selection2++);
+			pSelect += scores.at(selection2);
+		++selection2;
 	}
+	--selection2;
+
 	std::pair<int, int> p(selection, selection2);
-	std::cout << "E" << std::endl;
 	return p;
 }
 
@@ -171,7 +186,6 @@ vector<score_t> PlayfairGenetic::fitnessPopulation(const NGrams &standardFreq, c
 
 		fCollector.collectNGrams(pTextStream, testFreq);
 		scores.push_back(fitness(standardFreq, testFreq));
-		// std::cout << "#" << std::endl;
 	}
 	return scores;
 }
@@ -180,14 +194,12 @@ score_t PlayfairGenetic::fitness(const NGrams &standardFreq, const NGrams testFr
 	// S = frequency of ngram for standard
 	// T = frequency of ngram for test
 	
-	// frequency = 1 / sum{|S - T|^2} THIS HAS CHANGED, SEE END OF FUNCTION
-	// frequency = sum{ 1/ (|S - T|^2) }
+	// frequency = 1 / sum{|S - T|^2}
 
 	int n = standardFreq.n;
 	score_t fitness = 0;
 	if(standardFreq.freqs->empty() || testFreq.freqs->empty()) return -1;
 	if(((int)standardFreq.freqs->begin()->first.length() != n) || ((int)testFreq.freqs->begin()->first.length() != n)) return -2;
-	// std::cout << "!" << std::endl;
 
 	//  Iterate through all permutations of n letters
 	//  perms[] is used like an odometer
@@ -225,11 +237,9 @@ score_t PlayfairGenetic::fitness(const NGrams &standardFreq, const NGrams testFr
 		//  Add to fitness score
 		fitness += std::pow(std::abs(standardF - testF), 2);
 	}
-	// std::cout << "?" << std::endl;
 	delete[] perms;
 	//  Right now, lower fitness is better. Let's take the inverse. Now higher is better.
-	return 1 / fitness; //	MOVE THIS INVERSION TO TAKE PLACE DURING FITNESS INCREMENT
-	// return fitness;
+	return 1 / fitness;
 }
 
 int PlayfairGenetic::crossover(vector<string> &population, const GenerationParams &genParams, std::mt19937 rng) {
@@ -247,12 +257,12 @@ int PlayfairGenetic::crossover(vector<string> &population, const GenerationParam
 		for(int index = 0; index < (int)key.size(); index++) {            
 			if(uid(rng)) {
 				letterKeep[index] = true;
-				letterUsed.insert(std::make_pair(key.at(index), true));
+				letterUsed.insert(std::make_pair(key[index], true));
 			}
 		}
 		auto p2gene = p2.begin();
 		for(int index = 0; index < (int)key.size(); index++) {
-			if(!letterKeep.at(index)) {
+			if(!letterKeep[index]) {
 				while(letterUsed.find(*p2gene) != letterUsed.end()) {
 					++p2gene;
 				}
@@ -272,9 +282,9 @@ int PlayfairGenetic::mutation(vector<string> &population, const GenerationParams
 	switch(genParams.mutationType) {
 		case SWAP: {
 			for(int index = 2; index < (int)population.size(); index++) {
-				string key = population.at(index);
+				string key = population[index];
 				swapMutation(key, genParams, rng);
-				population.at(index) = key;
+				population[index] = key;
 			}
 			break;
 		}
@@ -283,9 +293,9 @@ int PlayfairGenetic::mutation(vector<string> &population, const GenerationParams
 			for(int index = 2; index < (int)population.size(); index++) {
 				double rand = urd(rng);
 				if(rand < genParams.mutationRate) {
-					string key = population.at(index);
+					string key = population[index];
 					inversionMutation(key, genParams, rng);
-					population.at(index) = key;
+					population[index] = key;
 				}
 			}
 			break;
@@ -305,13 +315,13 @@ int PlayfairGenetic::swapMutation(string &key, const GenerationParams &genParams
 	for(int index = 0; index < (int)key.size(); index++) {
 		double rand = urd(rng);
 		if(rand < genParams.mutationRate) {
-			swapLetters.push_back(key.at(index));
+			swapLetters.push_back(key[index]);
 			swapIndicies.push_back(index);
 		}
 	}
-	shuffle(swapLetters.begin(), swapLetters.end(), rng);
+	std::shuffle(swapLetters.begin(), swapLetters.end(), rng);
 	for(int i = 0; i < (int)swapIndicies.size(); i++) {
-		key.at(swapIndicies.at(i)) = swapLetters.at(i);
+		key[swapIndicies[i]] = swapLetters[i];
 	}
 	if(!validKey(key)) {
 		throw InvalidKeyException("InvalidKeyException in swapMutation()");
@@ -344,10 +354,10 @@ bool PlayfairGenetic::validKey(Iterable key) {
 	unordered_map<char, int> letterUsed;
 	for(int index = 0; index < (int)key.size(); index++) {
 		//	If the letter has alreay been put in
-		if(letterUsed.find(key.at(index)) != letterUsed.end()) {
+		if(letterUsed.find(key[index]) != letterUsed.end()) {
 			return false;
 		}
-		letterUsed.insert(std::make_pair(key.at(index), 0));
+		letterUsed.insert(std::make_pair(key[index], 0));
 	}
 	return true;
 }
