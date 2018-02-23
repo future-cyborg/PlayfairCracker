@@ -22,7 +22,6 @@
 // 	int killWorst;
 // };
 
-
 using std::vector;
 using std::string;
 
@@ -30,12 +29,12 @@ int main() {
 	PfHelpers::Timer timer;
 	int numChildren		= 8;
 	int newRandom 		= 2;
-	double mutationRate = 0.1;
+	double mutationRate = 0.2;
 	int mutationType 	= 0; 
 	int killWorst		= 2;
 
 	int initialSize = 10;
-	int numGens = 10;
+	int numGens = 100;
 
 	// Initialize standardFreq
 	NGrams *standardFreq = new NGrams;
@@ -69,19 +68,19 @@ int main() {
 	pG.initializePopulationRandom(initialSize, population, rng);
 	GenerationParams params { numChildren, newRandom, mutationRate, mutationType, killWorst };
 
-	// //	Outfile
-	// char scoresFileName[] = "scores.txt";
-	// std::ofstream scoresFile(scoresFileName);
-	// if(!scoresFile) {
-	// 	std::cerr << "Could not open " << scoresFileName << '\n';
-	// 	return -1;
-	// }
-	// char keyFileName[] = "keys.txt";
-	// std::ofstream keysFile(keyFileName);
-	// if(!keysFile) {
-	// 	std::cerr << "Could not open " << keyFileName << '\n';
-	// 	return -1;
-	// }
+	//	Outfile
+	char scoresFileName[] = "scores.txt";
+	std::ofstream scoresFile(scoresFileName);
+	if(!scoresFile) {
+		std::cerr << "Could not open " << scoresFileName << '\n';
+		return -1;
+	}
+	char keyFileName[] = "keys.txt";
+	std::ofstream keysFile(keyFileName);
+	if(!keysFile) {
+		std::cerr << "Could not open " << keyFileName << '\n';
+		return -1;
+	}
 
 	// We need sample rates for what a good score might be.
 	//	Use English text and make a bunch of random keys and compare the fitness scores.
@@ -89,10 +88,25 @@ int main() {
 	bestScores.reserve(numGens);
 	for(int generation = 0; generation < numGens; ++generation) {
 		pG.nextGeneration(*standardFreq, population, cipherText, params, rng);
+
+		//	Print each member and scores
+		vector<score_t> scores = pG.scores(*standardFreq, population, cipherText);
+		
+		score_t worst = scores.at(std::distance(scores.begin(), std::min_element(scores.begin(), scores.end())));
+		for(int index = 0; index < (int)scores.size(); index++) {
+			scores.at(index) = scores.at(index) - worst;
+		}
+
+		for(int member = 0; member < (int)population.size(); member++) {
+			keysFile << population.at(member) << " ";
+			scoresFile << scores.at(member) << " ";
+		}
+		keysFile << '\n';
+		scoresFile << '\n';
+
 		std::pair<string, double> bestIndex = pG.bestMember(*standardFreq, population, cipherText);
 		bestScores.push_back(bestIndex);
 
-		std::cout << "#" << std::endl;
 	}
 	for(int index = 0; index < (int)bestScores.size(); index++) {
 		std::cout << bestScores.at(index).first << " " << bestScores.at(index).second << '\n';
