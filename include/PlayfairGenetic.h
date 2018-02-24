@@ -78,7 +78,7 @@ public:
 
 	int nextGeneration(const NGrams &standardFreq, vector<string> &population,
 			const vector<char> &cipherText,	const GenerationParams &genParams,
-			std::mt19937 rng);
+			std::mt19937 &rng);
 
 	//	Prints given population
 	int printPopulation(vector<string> &population);
@@ -96,7 +96,7 @@ private:
 	//	Returns the indices of the two parents
 	std::pair<int, int> selectParents(const NGrams &standardFreq,
 			vector<string> &population,	const vector<char> &cipherText,
-			const GenerationParams &genParams, std::mt19937 rng);
+			const GenerationParams &genParams, std::mt19937 &rng);
 
 	//	Applies the fitness function on the entire population
 	vector<score_t> fitnessPopulation(const NGrams &standardFreq,
@@ -105,17 +105,17 @@ private:
 	
 
 	int crossover(vector<string> &population, const GenerationParams &genParams,
-			std::mt19937 rng);
+			std::mt19937 &rng);
 
 	int mutation(vector<string> &population, const GenerationParams &genParams,
-			std::mt19937 rng);
+			std::mt19937 &rng);
 
 	//	Each letter 
 	int swapMutation(string &key, const GenerationParams &genParams,
-			std::mt19937 rng);
+			std::mt19937 &rng);
 
 	int inversionMutation(string &key, const GenerationParams &genParams,
-			std::mt19937 rng);
+			std::mt19937 &rng);
 
 	//	Iterates using .at()
 	//	Used on string, vector<char>, etc.
