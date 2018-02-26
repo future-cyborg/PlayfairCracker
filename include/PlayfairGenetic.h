@@ -18,6 +18,7 @@ using std::vector;
 using std::unordered_map;
 using std::string;
 using std::stringstream;
+using std::list;
 
 typedef double score_t;
 
@@ -94,6 +95,8 @@ private:
 	string randomKey(std::mt19937 &rng);
 	// 	Produces a key from seed
 	string seedKey(std::mt19937 &rng, string seed);
+
+	list<string> keepBest(const vector<string> &population, const vector<score_t> scores, const GenerationParams genParams);
 
 	//	Returns the indices of the two parents
 	std::pair<int, int> selectParents(const vector<score_t> scores,	std::mt19937 &rng);

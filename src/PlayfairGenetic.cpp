@@ -47,18 +47,27 @@ int PlayfairGenetic::printPopulation(vector<string> &population) {
 	return 0;
 }
 
-list<string> keepBest(const vector<string> &population, const GenerationParams genParams) {
-	list<string> bestPop;
-	list<string> pop(population.begin(), population.end());
+list<string> PlayfairGenetic::keepBest(const vector<string> &population, const vector<score_t> scores, const GenerationParams genParams) {
+	if(population.size() != scores.size()) 
+		throw InvalidParameters("Vector sizes do not match: population & scores");
 
-	for(int index = 0; index < genParams.keepBest; index++) {
-		auto max = std::max_element(pop.begin(), pop.end());
-		bestPop.push_back(*max);
-		pop.erase(max);
+	list<string> bestPop;
+	list<std::pair<string, score_t>> pop;
+	for(int index = 0; index < (int)scores.size(); index++) {
+		pop.push_back(std::pair<string, score_t> (population.at(index), scores.at(index)));
 	}
 
-	return bestPop;
 
+	for(int index = 0; index < genParams.keepBest; index++) {
+		auto max = std::max_element(pop.begin(), pop.end(),
+            [](const std::pair<string, score_t>& left, const std::pair<string, score_t>& right){
+	            return left.second <  right.second;
+	        });
+		bestPop.push_back(max->first);
+		pop.erase(max);
+	}	
+
+	return bestPop;
 }
 
 int PlayfairGenetic::nextGeneration(const NGrams &standardFreq, vector<string> &population, const vector<char> &cipherText, const GenerationParams &genParams, std::mt19937 &rng) {
@@ -75,7 +84,7 @@ int PlayfairGenetic::nextGeneration(const NGrams &standardFreq, vector<string> &
 	string p1 = population.at(parents.first);
 	string p2 = population.at(parents.second);
 
-	list<string> bestPop = keepBest(population, genParams);
+	list<string> bestPop = keepBest(population, scores, genParams);
 	population.clear();
 	population.push_back(p1);
 	population.push_back(p2);
@@ -103,7 +112,7 @@ int PlayfairGenetic::nextGeneration(const NGrams &standardFreq, vector<string> &
 
 	//	Add the best elements that we kept earlier
 	auto bestMember = bestPop.begin();
-	for(int index = 0; index < bestPop.size(); index++) {
+	for(int index = 0; index < (int)bestPop.size(); index++) {
 		population.push_back(*bestMember++);
 	}
 	return 0;
