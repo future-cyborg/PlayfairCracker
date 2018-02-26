@@ -12,6 +12,7 @@
 #include <chrono>
 #include <algorithm>
 #include <iterator>
+#include <list>
 
 using std::vector;
 using std::unordered_map;
@@ -56,6 +57,7 @@ struct GenerationParams {
 	double mutationRate;
 	int mutationType;
 	int killWorst;
+	int keepBest;
 };
 
 class PlayfairGenetic {
@@ -94,9 +96,7 @@ private:
 	string seedKey(std::mt19937 &rng, string seed);
 
 	//	Returns the indices of the two parents
-	std::pair<int, int> selectParents(const NGrams &standardFreq,
-			vector<string> &population,	const vector<char> &cipherText,
-			const GenerationParams &genParams, std::mt19937 &rng);
+	std::pair<int, int> selectParents(const vector<score_t> scores,	std::mt19937 &rng);
 
 	//	Applies the fitness function on the entire population
 	vector<score_t> fitnessPopulation(const NGrams &standardFreq,

@@ -9,6 +9,7 @@ using std::vector;
 using std::unordered_map;
 using std::string;
 using std::stringstream;
+using std::list;
 
 
 PlayfairGenetic::PlayfairGenetic() {}
@@ -46,15 +47,36 @@ int PlayfairGenetic::printPopulation(vector<string> &population) {
 	return 0;
 }
 
+list<string> keepBest(const vector<string> &population, const GenerationParams genParams) {
+	list<string> bestPop;
+	list<string> pop(population.begin(), population.end());
+
+	for(int index = 0; index < genParams.keepBest; index++) {
+		auto max = std::max_element(pop.begin(), pop.end());
+		bestPop.push_back(*max);
+		pop.erase(max);
+	}
+
+	return bestPop;
+
+}
+
 int PlayfairGenetic::nextGeneration(const NGrams &standardFreq, vector<string> &population, const vector<char> &cipherText, const GenerationParams &genParams, std::mt19937 &rng) {
-	std::pair<int, int> parents = selectParents(standardFreq, population, cipherText, genParams, rng);
+	//	get fitness scores for the population
+	vector<score_t> scores = fitnessPopulation(standardFreq, population, cipherText);
+	//	Kill off the worst
+	for(int index = 0; index < genParams.killWorst; index++) {
+		int worst = std::distance(scores.begin(), std::min_element(scores.begin(), scores.end()));
+		population.erase(population.begin()+worst);
+		scores.erase(scores.begin()+worst);
+	}
+	std::pair<int, int> parents = selectParents(scores, rng);
 	
 	string p1 = population.at(parents.first);
-	string p2 = population.at(parents.second);	
+	string p2 = population.at(parents.second);
+
+	list<string> bestPop = keepBest(population, genParams);
 	population.clear();
-	population.push_back(p1);
-	population.push_back(p2);
-	//	We're going to add the parents twice. One copy gets mutated, the first two do not.
 	population.push_back(p1);
 	population.push_back(p2);
 
@@ -77,6 +99,12 @@ int PlayfairGenetic::nextGeneration(const NGrams &standardFreq, vector<string> &
 		throw;
 	} catch(InvalidParameters e) {
 		std::cerr << e.getMessage() << '\n';
+	}
+
+	//	Add the best elements that we kept earlier
+	auto bestMember = bestPop.begin();
+	for(int index = 0; index < bestPop.size(); index++) {
+		population.push_back(*bestMember++);
 	}
 	return 0;
 }
@@ -127,23 +155,16 @@ string PlayfairGenetic::seedKey(std::mt19937 &rng, string seed) {
 	return key;
 }
 
-std::pair<int, int> PlayfairGenetic::selectParents(const NGrams &standardFreq, vector<string> &population,
-		const vector<char> &cipherText, const GenerationParams &genParams, std::mt19937 &rng) {
-	vector<score_t> scores = fitnessPopulation(standardFreq, population, cipherText);
-	//	Kill off the worst
-	for(int index = 0; index < genParams.killWorst; index++) {
-		int worst = std::distance(scores.begin(), std::min_element(scores.begin(), scores.end()));
-		population.erase(population.begin()+worst);
-		scores.erase(scores.begin()+worst);
-	}
+std::pair<int, int> PlayfairGenetic::selectParents(const vector<score_t> scores, std::mt19937 &rng) {
 	// 	Update to parent selection. Subtracting lowestFitnessValue from all fitness scores,
 	//		then we use their proportions
-	score_t worst = scores.at(std::distance(scores.begin(), std::min_element(scores.begin(), scores.end())));
-	for(int index = 0; index < (int)scores.size(); index++) {
-		scores[index] = scores[index] - worst;
+	vector<score_t> cpyScores = scores;
+	score_t worst = cpyScores.at(std::distance(cpyScores.begin(), std::min_element(cpyScores.begin(), cpyScores.end())));
+	for(int index = 0; index < (int)cpyScores.size(); index++) {
+		cpyScores[index] = cpyScores[index] - worst;
 	}
 
-	score_t scoreSum = sumVector(scores);
+	score_t scoreSum = sumVector(cpyScores);
 
 	//  Get a random double in range [0-scoreSum]
 	std::uniform_real_distribution<score_t> uid(0,scoreSum);
@@ -151,18 +172,18 @@ std::pair<int, int> PlayfairGenetic::selectParents(const NGrams &standardFreq, v
 	//  Select first parent
 	int selection = -1;
 	while(pSelect < scoreSum) {
-		pSelect += scores.at(++selection);
+		pSelect += cpyScores.at(++selection);
 	}
 
 	//  Select second parent
-	scoreSum -= scores.at(selection);
+	scoreSum -= cpyScores.at(selection);
 	int selection2 = 0;
 	std::uniform_real_distribution<score_t> uid2(0,scoreSum);
 	pSelect = uid2(rng);
 	while(pSelect < scoreSum) {
 		//  Don't pick the first parent twice
 		if(selection2 != selection)
-			pSelect += scores.at(selection2);
+			pSelect += cpyScores.at(selection2);
 		++selection2;
 	}
 	--selection2;
