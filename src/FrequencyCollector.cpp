@@ -98,6 +98,7 @@ int FrequencyCollector::readNgramCount(char fileName[], NGrams &nGrams) {
 		}
 		// 	Add ngram:count to hashmap nGrams
 		nGrams.freqs->insert(std::make_pair(ngram, count));
+		delete[] ngram;
 	}
 	return 0;
 }
