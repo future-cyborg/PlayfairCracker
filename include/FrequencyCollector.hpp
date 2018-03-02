@@ -1,5 +1,5 @@
-#ifndef FREQUENCYCOLLECTOR_H
-#define FREQUENCYCOLLECTOR_H
+#ifndef FREQUENCYCOLLECTOR_HPP
+#define FREQUENCYCOLLECTOR_HPP
 
 #include <unordered_map>
 
@@ -57,4 +57,4 @@ private:
     unsigned long numFileLines(char* fileName);
 };
 
-#endif // FREQUENCYCOLLECTOR_H
+#endif // FREQUENCYCOLLECTOR_HPP

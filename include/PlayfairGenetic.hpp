@@ -1,8 +1,9 @@
-#ifndef PLAYFAIRGENETIC_H
-#define PLAYFAIRGENETIC_H
+#ifndef PLAYFAIRGENETIC_HPP
+#define PLAYFAIRGENETIC_HPP
 
-#include "FrequencyCollector.h"
-#include "Key.h"
+#include "FrequencyCollector.hpp"
+#include "Key.hpp"
+#include "pcg_random.hpp"
 #include <string>
 #include <unordered_map>
 #include <iostream>
@@ -130,4 +131,4 @@ private:
 };
 
 
-#endif // PLAYFAIRGENETIC_H
+#endif // PLAYFAIRGENETIC_HPP

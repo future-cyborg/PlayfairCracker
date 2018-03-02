@@ -1,5 +1,5 @@
-#include "FrequencyCollector.h"
-#include "PfHelpers.h"
+#include "FrequencyCollector.hpp"
+#include "PfHelpers.hpp"
 #include <fstream>
 #include <iostream>
 #include <string>

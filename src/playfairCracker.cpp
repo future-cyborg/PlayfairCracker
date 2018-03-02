@@ -1,7 +1,9 @@
-#include "PlayfairGenetic.h"
-#include "FrequencyCollector.h"
-#include "Key.h"
-#include "PfHelpers.h"
+#include "PlayfairGenetic.hpp"
+#include "FrequencyCollector.hpp"
+#include "Key.hpp"
+#include "PfHelpers.hpp"
+#include "pcg_random.hpp"
+
 
 #include <iostream>
 #include <fstream>

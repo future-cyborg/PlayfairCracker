@@ -1,7 +1,7 @@
-#include "FrequencyCollector.h"
-#include "Key.h"
-#include "PlayfairGenetic.h"
-#include "PfHelpers.h"
+#include "FrequencyCollector.hpp"
+#include "Key.hpp"
+#include "PlayfairGenetic.hpp"
+#include "PfHelpers.hpp"
 
 #define ALPHABET "ABCDEFGHIKLMNOPQRSTUVWXYZ"
 

@@ -1,5 +1,5 @@
-#ifndef KEY_H
-#define KEY_H
+#ifndef KEY_HPP
+#define KEY_HPP
 
 #include <unordered_map>
 #include <vector>
@@ -65,4 +65,4 @@ private:
     int getColumn(int place);
 };
 
-#endif // KEY_H
+#endif // KEY_HPP

@@ -24,16 +24,16 @@ all: playfair playfairCracker doc
 playfair: $(OBJDIR)/playfair.o $(OBJDIR)/Key.o $(INCDIR)/optionparser.h
 	$(CMD) $(OBJDIR)/playfair.o $(OBJDIR)/Key.o -o $@
 
-$(OBJDIR)/playfair.o: $(SRCDIR)/playfair.cpp $(INCDIR)/Key.h $(INCDIR)/optionparser.h
+$(OBJDIR)/playfair.o: $(SRCDIR)/playfair.cpp $(INCDIR)/Key.hpp $(INCDIR)/optionparser.hpp
 	$(CMD) -c $< -o $@
 
 playfairCracker: $(OBJDIR)/playfairCracker.o $(patsubst %.xx, $(OBJDIR)/%.o, $(SCRACK))
 	$(CMD) $^ -o $@
 
-$(OBJDIR)/playfairCracker.o: $(SRCDIR)/playfairCracker.cpp $(patsubst %.xx, $(INCDIR)/%.h, $(SCRACK)) $(patsubst %.xx, $(SRCDIR)/%.cpp, $(SCRACK))
+$(OBJDIR)/playfairCracker.o: $(SRCDIR)/playfairCracker.cpp $(patsubst %.xx, $(INCDIR)/%.hpp, $(SCRACK)) $(patsubst %.xx, $(SRCDIR)/%.cpp, $(SCRACK))
 	$(CMD) -c $< -o $@
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(INCDIR)/%.h $(patsubst %.xx, $(INCDIR)/%.h, $(HELPER)) $(patsubst %.xx, $(SRCDIR)/%.cpp, $(HELPER))
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(INCDIR)/%.hpp $(patsubst %.xx, $(INCDIR)/%.hpp, $(HELPER)) $(patsubst %.xx, $(SRCDIR)/%.cpp, $(HELPER))
 	$(CMD) -c $< -o $@
 
 doc:

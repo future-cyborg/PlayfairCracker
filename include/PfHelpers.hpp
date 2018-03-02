@@ -1,5 +1,5 @@
-#ifndef PF_HELPERS_H
-#define PF_HELPERS_H
+#ifndef PF_HELPERS_HPP
+#define PF_HELPERS_HPP
 
 #include <vector>
 #include <string>
@@ -52,4 +52,4 @@ namespace PfHelpers {
 }
 
 
-#endif // PF_HELPERS_H_
+#endif // PF_HELPERS_HPP
