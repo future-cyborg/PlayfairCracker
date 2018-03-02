@@ -16,7 +16,7 @@ PlayfairGenetic::PlayfairGenetic() {}
 PlayfairGenetic::~PlayfairGenetic() {}
 
 
-int PlayfairGenetic::initializePopulationRandom(int popSize, vector<string> &population, std::mt19937 &rng) {
+int PlayfairGenetic::initializePopulationRandom(int popSize, vector<string> &population, rng_t &rng) {
 	population.clear();
 	population.reserve(popSize);
 	for(int i = 0; i < popSize; i++) {
@@ -26,7 +26,7 @@ int PlayfairGenetic::initializePopulationRandom(int popSize, vector<string> &pop
 }
 
 
-int PlayfairGenetic::initializePopulationSeed(int popSize, vector<string> &population, std::mt19937 &rng, string seed) {
+int PlayfairGenetic::initializePopulationSeed(int popSize, vector<string> &population, rng_t &rng, string seed) {
 	population.clear();
 	population.reserve(popSize);
 	for(int i = 0; i < popSize; i++) {
@@ -70,7 +70,7 @@ list<string> PlayfairGenetic::keepBest(const vector<string> &population, const v
 	return bestPop;
 }
 
-int PlayfairGenetic::nextGeneration(const NGrams &standardFreq, vector<string> &population, const vector<char> &cipherText, const GenerationParams &genParams, std::mt19937 &rng) {
+int PlayfairGenetic::nextGeneration(const NGrams &standardFreq, vector<string> &population, const vector<char> &cipherText, const GenerationParams &genParams, rng_t &rng) {
 	//	get fitness scores for the population
 	vector<score_t> scores = fitnessPopulation(standardFreq, population, cipherText);
 	//	Kill off the worst
@@ -131,13 +131,13 @@ std::pair<string, score_t> PlayfairGenetic::bestMember(const NGrams &standardFre
 	return std::pair<string, score_t> (population.at(best), scores.at(best));
 }
 
-string PlayfairGenetic::randomKey(std::mt19937 &rng) {
+string PlayfairGenetic::randomKey(rng_t &rng) {
 	string alphabet = ALPHABET;
 	std::shuffle(alphabet.begin(), alphabet.end(), rng);
 	return alphabet;
 }
 
-string PlayfairGenetic::seedKey(std::mt19937 &rng, string seed) {
+string PlayfairGenetic::seedKey(rng_t &rng, string seed) {
 	unordered_map<char, bool> letterUsed;
 	string alphabet = ALPHABET;
 	string key;
@@ -164,7 +164,7 @@ string PlayfairGenetic::seedKey(std::mt19937 &rng, string seed) {
 	return key;
 }
 
-std::pair<int, int> PlayfairGenetic::selectParents(const vector<score_t> scores, std::mt19937 &rng) {
+std::pair<int, int> PlayfairGenetic::selectParents(const vector<score_t> scores, rng_t &rng) {
 	// 	Update to parent selection. Subtracting lowestFitnessValue from all fitness scores,
 	//		then we use their proportions
 	vector<score_t> cpyScores = scores;
@@ -272,7 +272,7 @@ score_t PlayfairGenetic::fitness(const NGrams &standardFreq, const NGrams testFr
 	return 1 / fitness;
 }
 
-int PlayfairGenetic::crossover(vector<string> &population, const GenerationParams &genParams, std::mt19937 &rng) {
+int PlayfairGenetic::crossover(vector<string> &population, const GenerationParams &genParams, rng_t &rng) {
 	string p1 = population.at(0);
 	string p2 = population.at(1);
 	std::uniform_int_distribution<int> uid(0, 1);
@@ -308,7 +308,7 @@ int PlayfairGenetic::crossover(vector<string> &population, const GenerationParam
 	return 0;
 }
 
-int PlayfairGenetic::mutation(vector<string> &population, const GenerationParams &genParams, std::mt19937 &rng) {
+int PlayfairGenetic::mutation(vector<string> &population, const GenerationParams &genParams, rng_t &rng) {
 	switch(genParams.mutationType) {
 		case SWAP: {
 			for(int index = 2; index < (int)population.size(); index++) {
@@ -338,7 +338,7 @@ int PlayfairGenetic::mutation(vector<string> &population, const GenerationParams
 	return 0;
 }
 
-int PlayfairGenetic::swapMutation(string &key, const GenerationParams &genParams, std::mt19937 &rng) {
+int PlayfairGenetic::swapMutation(string &key, const GenerationParams &genParams, rng_t &rng) {
 	vector<char> swapLetters;
 	vector<char> swapIndicies;
 	std::uniform_real_distribution<double> urd(0.0, 1.0);
@@ -359,7 +359,7 @@ int PlayfairGenetic::swapMutation(string &key, const GenerationParams &genParams
 	return 0;
 }
 
-int PlayfairGenetic::inversionMutation(string &key, const GenerationParams &genParams, std::mt19937 &rng) {
+int PlayfairGenetic::inversionMutation(string &key, const GenerationParams &genParams, rng_t &rng) {
 	std::uniform_int_distribution<int> uid(0,key.size() - 1);
 	int start = uid(rng);
 	int end = uid(rng);

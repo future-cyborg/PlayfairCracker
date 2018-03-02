@@ -22,6 +22,7 @@ using std::stringstream;
 using std::list;
 
 typedef double score_t;
+typedef pcg32 rng_t;
 
 
 /*
@@ -70,19 +71,19 @@ public:
 	//	This initializes a pseudo-random population. 'population' will be cleared 
 	//  	and resized appropriately.
 	int initializePopulationRandom(int popSize, vector<string> &population,
-			std::mt19937 &rng);
+			rng_t &rng);
 
 	//	This initializes a population with pseudo-random variation around a given
 	//		seed, or keyword. If seed is 'Apple', each member will start with
 	//		'APLE', with the remaining characters randomized. 'population' will be
 	//		cleared and resized appropriately. 
 	int initializePopulationSeed(int popSize, vector<string> &population,
-			std::mt19937 &rng, string seed);
+			rng_t &rng, string seed);
 
 
 	int nextGeneration(const NGrams &standardFreq, vector<string> &population,
 			const vector<char> &cipherText,	const GenerationParams &genParams,
-			std::mt19937 &rng);
+			rng_t &rng);
 
 	//	Prints given population
 	int printPopulation(vector<string> &population);
@@ -93,14 +94,14 @@ public:
 
 private:
 	//	Produces a pseudo-random key	
-	string randomKey(std::mt19937 &rng);
+	string randomKey(rng_t &rng);
 	// 	Produces a key from seed
-	string seedKey(std::mt19937 &rng, string seed);
+	string seedKey(rng_t &rng, string seed);
 
 	list<string> keepBest(const vector<string> &population, const vector<score_t> scores, const GenerationParams genParams);
 
 	//	Returns the indices of the two parents
-	std::pair<int, int> selectParents(const vector<score_t> scores,	std::mt19937 &rng);
+	std::pair<int, int> selectParents(const vector<score_t> scores,	rng_t &rng);
 
 	//	Applies the fitness function on the entire population
 	vector<score_t> fitnessPopulation(const NGrams &standardFreq,
@@ -109,17 +110,17 @@ private:
 	
 
 	int crossover(vector<string> &population, const GenerationParams &genParams,
-			std::mt19937 &rng);
+			rng_t &rng);
 
 	int mutation(vector<string> &population, const GenerationParams &genParams,
-			std::mt19937 &rng);
+			rng_t &rng);
 
 	//	Each letter 
 	int swapMutation(string &key, const GenerationParams &genParams,
-			std::mt19937 &rng);
+			rng_t &rng);
 
 	int inversionMutation(string &key, const GenerationParams &genParams,
-			std::mt19937 &rng);
+			rng_t &rng);
 
 	//	Iterates using .at()
 	//	Used on string, vector<char>, etc.

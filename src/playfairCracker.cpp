@@ -64,8 +64,14 @@ int main() {
 	}
 	// Initialize 
 	vector<string> population;
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-	std::mt19937 rng(seed);
+
+	// unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	// std::mt19937 rng(seed);
+    pcg_extras::seed_seq_from<std::random_device> seed_source;
+
+    // Make a random number engine
+    rng_t rng(seed_source);
+
 	PlayfairGenetic pG;
 	pG.initializePopulationRandom(initialSize, population, rng);
 	GenerationParams params { numChildren, newRandom, mutationRate, mutationType, killWorst };
