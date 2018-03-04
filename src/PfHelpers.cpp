@@ -9,6 +9,10 @@
 using std::vector;
 using std::string;
 
+Exception::Exception(const char* msg) : e_msg(msg) {}
+Exception::~Exception( ) {}
+const char* Exception::getMessage( ) const {return(e_msg);}
+
 InvalidKeyException::InvalidKeyException(const char* msg) : e_msg(msg) {}
 InvalidKeyException::~InvalidKeyException( ) {}
 const char* InvalidKeyException::getMessage( ) const {return(e_msg);}

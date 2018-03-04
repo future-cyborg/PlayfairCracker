@@ -10,6 +10,16 @@
 using std::vector;
 using std::string;
 
+class Exception {
+public:
+   Exception(const char* msg = "Error");
+  ~Exception( );
+
+   const char* getMessage( ) const;
+private:
+   const char* e_msg;
+};
+
 class InvalidKeyException {
 public:
    InvalidKeyException(const char* msg = "InvalidKeyException");

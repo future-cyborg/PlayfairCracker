@@ -213,7 +213,12 @@ vector<score_t> PlayfairGenetic::fitnessPopulation(const FrequencyCollector &sta
 		stringstream pTextStream(string(pText.begin(), pText.end()));
 
 		fCollector.collectNGrams(pTextStream);
-		scores.push_back(fitness(standardFreq, fCollector));
+		try {
+			scores.push_back(fitness(standardFreq, fCollector));
+		} catch(Exception e) {
+			std::cerr << e.getMessage() << '\n';
+			throw;
+		}
 	}
 	return scores;
 }
@@ -226,8 +231,12 @@ score_t PlayfairGenetic::fitness(const FrequencyCollector &standardFreq, const F
 
 	int n = standardFreq.getN();
 	score_t fitness = 0;
-	if(standardFreq.isEmpty() || testFreq.isEmpty()) return -1;
-	if(testFreq.getN() != n) return -2;
+	if(standardFreq.isEmpty() || testFreq.isEmpty()) {
+		throw Exception("Error: A frequency map is empty");
+	}
+	if(testFreq.getN() != n) {
+		throw Exception("Error: frequencies have different n value");
+	}
 
 	//  Iterate through all permutations of n letters
 	//  perms[] is used like an odometer

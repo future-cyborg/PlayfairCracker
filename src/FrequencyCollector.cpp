@@ -90,7 +90,7 @@ int FrequencyCollector::readNgramCount(char fileName[]) {
 			std::cerr << "Ngram length contradiction!" << '\n';
 			std::cerr << "  Ngram read from " << fileName << " was of length: " << ngramString.size() << '\n';
 			std::cerr << "  Ngram length expected: " << n << '\n';
-			return -2;
+			throw Exception("Error: Ngram length contradiction");
 		}
 		// 	Convert string to char[]
 		char* ngram = new char[n];
