@@ -5,8 +5,8 @@
 Key::Key(char doubleFill, char extraFill, char omitLetter, char replaceLetter) : 
 	Key("", doubleFill, extraFill, omitLetter, replaceLetter) { }
 	
-Key::Key(std::string keyw, char doubleFill, char extraFill, char omitLetter, char replaceLetter) :
-	keyword{keyw}, key {}, letterPlace{25} {
+Key::Key(std::string keyWord, char doubleFill, char extraFill, char omitLetter, char replaceLetter) :
+	keyword{keyWord}, key {}, letterPlace{25} {
 
 	if(isalpha(doubleFill))
 		bufferDouble = toupper(doubleFill);
@@ -14,7 +14,7 @@ Key::Key(std::string keyw, char doubleFill, char extraFill, char omitLetter, cha
 		bufferExtra = toupper(extraFill);
 	if(isalpha(omitLetter))
 		letterOmit = toupper(omitLetter);
-	//	Wish I could make this more neat
+
 	if(isalpha(replaceLetter)) {
 		if(toupper(replaceLetter) == letterOmit) {
 			// 	LOMIT and LREPL are from header file
@@ -31,19 +31,36 @@ Key::Key(std::string keyw, char doubleFill, char extraFill, char omitLetter, cha
 
 Key::~Key() { }
 
+/**
+ * @brief 		Returns keyword as given in constructor
+ * 
+ * @details 	The keyword given in constructor is returned, rather than the keyword
+ * 					as it appears in the square. (e.g. applecake,  not APLECK)
+ * 
+ * @return keyword
+ */
 std::string Key::getKeyword() {
 	return keyword;
 }
 
-std::vector<char> Key::encrypt(std::vector<char> pText) {
+/**
+ * @brief 		Encrypts plainText with key
+ * @details 	Call sanitizeText() on plainText before using this function to ensure no
+ * 					errors occur.
+ * 
+ * @param plainText 	Must only contain the 25 valid uppercase characters. There will
+ * 							be errors otherwise. (Likely out_of_range exception).
+ * @return  Encrypted cipherText
+ */
+std::vector<char> Key::encrypt(const std::vector<char> &plainText) {
 	std::vector<char> cipherText;
-	cipherText.reserve(pText.size());
-	// Iterate pText 2 char at a time. Decrypt digram and add to cipherText
-	for(std::vector<char>::iterator it = pText.begin(); it != pText.end(); ) {
+	cipherText.reserve(plainText.size());
+	// Iterate plainText 2 char at a time. Decrypt digram and add to cipherText
+	for(std::vector<char>::const_iterator it = plainText.begin(); it != plainText.end(); ) {
 		char a(*it), b;
 		bool doubleLetter = false;
 		// Add buffer to the end of odd length message
-		if(++it == pText.end()) {			
+		if(++it == plainText.end()) {			
 			b = bufferExtra;
 		}
 		else {
@@ -60,9 +77,9 @@ std::vector<char> Key::encrypt(std::vector<char> pText) {
 		char* newDigram = encryptDigram(a, b);
 		cipherText.push_back(newDigram[0]);
 		cipherText.push_back(newDigram[1]);
-		delete(newDigram);
+		delete[] newDigram;
 
-		if(it == pText.end()) {
+		if(it == plainText.end()) {
 			break;
 		}
 		// Don't move iterator if we added a buffer letter
@@ -71,13 +88,23 @@ std::vector<char> Key::encrypt(std::vector<char> pText) {
 	return cipherText;
 }
 
-std::vector<char> Key::decrypt(std::vector<char> cText) {
+/**
+ * @brief 		Decrypts cipherText with key
+ * @details 	Call sanitizeText() on cipherText before using this function to ensure no
+ * 					errors occur. Letters added during encryption, due to double letters
+ * 					or odd length text, are still included in decrypted text.
+ * 
+ * @param cipherText 	Must only contain the 25 valid uppercase characters. There will
+ * 							be errors otherwise. (Likely out_of_range exception).
+ * @return Decrypted plainText
+ */
+std::vector<char> Key::decrypt(const std::vector<char> &cipherText) {
 	std::vector<char> plainText;
-	plainText.reserve(cText.size());
-	// Iterate cText 2 char at a time. Decrypt digram and add to plainText
-	for(std::vector<char>::iterator it = cText.begin(); it != cText.end(); ) {
+	plainText.reserve(cipherText.size());
+	// Iterate cipherText 2 char at a time. Decrypt digram and add to plainText
+	for(std::vector<char>::const_iterator it = cipherText.begin(); it != cipherText.end(); ) {
 		char a(*it), b;
-		if(++it == cText.end()) {
+		if(++it == cipherText.end()) {
 			// Add buffer to the end of odd length message.
 			// Though if this class' encrypt() was used, this will never be the case.
 			b = bufferExtra;
@@ -87,9 +114,9 @@ std::vector<char> Key::decrypt(std::vector<char> cText) {
 		char* newDigram = decryptDigram(a, b);
 		plainText.push_back(newDigram[0]);
 		plainText.push_back(newDigram[1]);
-		delete(newDigram);
+		delete[] newDigram;
 		
-		if(it == cText.end()) {
+		if(it == cipherText.end()) {
 			break;
 		}
 		else ++it;
@@ -97,7 +124,46 @@ std::vector<char> Key::decrypt(std::vector<char> cText) {
 	return plainText;
 }
 
+/**
+ * @brief  	Prepare text for encrypt() and decrypt()
+ * @details This function is used to sanitize:
+ * @li 			plainText  for encrypt()
+ * @li 			cipherText for decrypt()
+ * @li 			keyword    for generate() *(called internally)
+ *
+ * Valid characters are standard Latin letters A to Z, minus letterOmit.
+ * All non-valid characters are removed from text, while all lowercase equivalents
+ * 		to valid characters are converted to uppercase.
+ * 
+ * @param text 	Reference to text to be sanitized
+ * @return 	Reference to text
+ */
 
+std::vector<char>& Key::sanitizeText(std::vector<char> &text) {
+	for (std::vector<char>::iterator it = text.begin() ; it != text.end();) {
+		// Change uppercase letters to lowercase
+		if(*it > 96 && *it < 123) {
+			*it = *it - 32;
+		}
+		// Change all J to I (or alternative letters)
+		if(*it == letterOmit) {
+			*it = letterReplace;
+		}
+		// Remove all non-letters
+		if(*it < 65 || *it > 90) {
+			it = text.erase(it);
+		}
+		else ++it;
+	}
+	text.resize(text.size());
+	return text;
+}
+
+/**
+ * @brief 	Called during construction to set up private variables
+ * 
+ * @return 	Return code: 0
+ */
 int Key::generate() {
 	std::vector<char> keywordV(keyword.begin(), keyword.end());
 	sanitizeText(keywordV);
@@ -129,27 +195,11 @@ int Key::generate() {
     return 0;
 }
 
-std::vector<char>& Key::sanitizeText(std::vector<char> &text) {
-	for (std::vector<char>::iterator it = text.begin() ; it != text.end();) {
-		// Change uppercase letters to lowercase
-		if(*it > 96 && *it < 123) {
-			*it = *it - 32;
-		}
-		// Change all J to I (or alternative letters)
-		if(*it == letterOmit) {
-			*it = letterReplace;
-		}
-		// Remove all non-letters
-		if(*it < 65 || *it > 90) {
-			it = text.erase(it);
-		}
-		else ++it;
-	}
-	text.resize(text.size());
-	return text;
-}
-
-
+/**
+ * @brief   Encrypts digram 
+ * 
+ * @return 	Encrypted digram as char[2]
+ */
 char* Key::encryptDigram(char a, char b) {
 	char *digram = new char[2];
 	int aPos = letterPlace.at(a);
@@ -172,6 +222,11 @@ char* Key::encryptDigram(char a, char b) {
 	return digram;
 }
 
+/**
+ * @brief   Decrypts digram 
+ * 
+ * @return 	Decrypted digram as char[2]
+ */
 char *Key::decryptDigram(char a, char b){
 	char *digram = new char[2];
 	int aPos = letterPlace.at(a);

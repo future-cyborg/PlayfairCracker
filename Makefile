@@ -24,7 +24,7 @@ all: playfair playfairCracker doc
 playfair: $(OBJDIR)/playfair.o $(OBJDIR)/Key.o $(INCDIR)/optionparser.h
 	$(CMD) $(OBJDIR)/playfair.o $(OBJDIR)/Key.o -o $@
 
-$(OBJDIR)/playfair.o: $(SRCDIR)/playfair.cpp $(INCDIR)/Key.hpp $(INCDIR)/optionparser.hpp
+$(OBJDIR)/playfair.o: $(SRCDIR)/playfair.cpp $(INCDIR)/Key.hpp $(INCDIR)/optionparser.h
 	$(CMD) -c $< -o $@
 
 playfairCracker: $(OBJDIR)/playfairCracker.o $(patsubst %.xx, $(OBJDIR)/%.o, $(SCRACK))
@@ -40,3 +40,4 @@ doc:
 
 clean:
 	rm -f $(OBJDIR)/*.o playfair playfairCracker
+	rm -rf source_html/
