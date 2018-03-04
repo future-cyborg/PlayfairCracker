@@ -70,7 +70,7 @@ list<string> PlayfairGenetic::keepBest(const vector<string> &population, const v
 	return bestPop;
 }
 
-int PlayfairGenetic::nextGeneration(const NGrams &standardFreq, vector<string> &population, const vector<char> &cipherText, const GenerationParams &genParams, rng_t &rng) {
+int PlayfairGenetic::nextGeneration(const FrequencyCollector &standardFreq, vector<string> &population, const vector<char> &cipherText, const GenerationParams &genParams, rng_t &rng) {
 	//	get fitness scores for the population
 	vector<score_t> scores = fitnessPopulation(standardFreq, population, cipherText);
 	//	Kill off the worst
@@ -118,11 +118,11 @@ int PlayfairGenetic::nextGeneration(const NGrams &standardFreq, vector<string> &
 	return 0;
 }
 
-vector<score_t> PlayfairGenetic::scores(const NGrams &standardFreq, const vector<string> &population, const vector<char> &cipherText) {
+vector<score_t> PlayfairGenetic::scores(const FrequencyCollector &standardFreq, const vector<string> &population, const vector<char> &cipherText) {
 	return fitnessPopulation(standardFreq, population, cipherText);
 }
 
-std::pair<string, score_t> PlayfairGenetic::bestMember(const NGrams &standardFreq, const vector<string> &population,
+std::pair<string, score_t> PlayfairGenetic::bestMember(const FrequencyCollector &standardFreq, const vector<string> &population,
 		const vector<char> &cipherText) {
 
 	vector<score_t> scores = fitnessPopulation(standardFreq, population, cipherText);
@@ -201,39 +201,37 @@ std::pair<int, int> PlayfairGenetic::selectParents(const vector<score_t> scores,
 	return p;
 }
 
-vector<score_t> PlayfairGenetic::fitnessPopulation(const NGrams &standardFreq, const vector<string> &population, const vector<char> &cipherText) {
-	int n = standardFreq.n;
+vector<score_t> PlayfairGenetic::fitnessPopulation(const FrequencyCollector &standardFreq, const vector<string> &population, const vector<char> &cipherText) {
+	int n = standardFreq.getN();
 	vector<score_t> scores;
-	FrequencyCollector fCollector;
+	FrequencyCollector fCollector(n);
 	for(auto it = population.begin(); it != population.end(); ++it) {
-		NGrams testFreq {n};
-		std::unordered_map<string, count_t> testFreqs;
-		testFreq.freqs = &testFreqs;
+		fCollector.clear();
 
 		Key key(*it);
 		vector<char> pText = key.decrypt(cipherText);
 		stringstream pTextStream(string(pText.begin(), pText.end()));
 
-		fCollector.collectNGrams(pTextStream, testFreq);
-		scores.push_back(fitness(standardFreq, testFreq));
+		fCollector.collectNGrams(pTextStream);
+		scores.push_back(fitness(standardFreq, fCollector));
 	}
 	return scores;
 }
 
-score_t PlayfairGenetic::fitness(const NGrams &standardFreq, const NGrams testFreq) {
+score_t PlayfairGenetic::fitness(const FrequencyCollector &standardFreq, const FrequencyCollector testFreq) {
 	// S = frequency of ngram for standard
 	// T = frequency of ngram for test
 	
 	// frequency = 1 / sum{|S - T|^2}
 
-	int n = standardFreq.n;
+	int n = standardFreq.getN();
 	score_t fitness = 0;
-	if(standardFreq.freqs->empty() || testFreq.freqs->empty()) return -1;
-	if(((int)standardFreq.freqs->begin()->first.length() != n) || ((int)testFreq.freqs->begin()->first.length() != n)) return -2;
+	if(standardFreq.isEmpty() || testFreq.isEmpty()) return -1;
+	if(testFreq.getN() != n) return -2;
 
 	//  Iterate through all permutations of n letters
 	//  perms[] is used like an odometer
-	int *perms = new int[n]();
+	int *perms = new int[n];
 	int max = std::pow(26,n);
 	for(int i = 0; i < max; i++) {
 		string perm;
@@ -252,17 +250,8 @@ score_t PlayfairGenetic::fitness(const NGrams &standardFreq, const NGrams testFr
 		}
 		
 		//  Collect the standard and test rate of permutation
-		double standardF, testF;
-		auto sF = standardFreq.freqs->find(perm);
-		if(sF != standardFreq.freqs->end())
-			standardF = double(sF->second) / standardFreq.count;
-		else
-			standardF = 0;
-		auto tF = testFreq.freqs->find(perm);
-		if(tF != testFreq.freqs->end())
-			testF = double(tF->second) / testFreq.count;
-		else
-			testF = 0;
+		double standardF = standardFreq.frequency(perm);
+		double testF = testFreq.frequency(perm);
 
 		//  Add to fitness score
 		fitness += std::pow(std::abs(standardF - testF), 2);

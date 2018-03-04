@@ -81,16 +81,16 @@ public:
 			rng_t &rng, string seed);
 
 
-	int nextGeneration(const NGrams &standardFreq, vector<string> &population,
+	int nextGeneration(const FrequencyCollector &standardFreq, vector<string> &population,
 			const vector<char> &cipherText,	const GenerationParams &genParams,
 			rng_t &rng);
 
 	//	Prints given population
 	int printPopulation(vector<string> &population);
 
-	std::pair<string, score_t> bestMember(const NGrams &standardFreq, const vector<string> &population, const vector<char> &cipherText);
-	vector<score_t> scores(const NGrams &standardFreq, const vector<string> &population, const vector<char> &cipherText);
-	score_t fitness(const NGrams &standardFreq, const NGrams testFreq);
+	std::pair<string, score_t> bestMember(const FrequencyCollector &standardFreq, const vector<string> &population, const vector<char> &cipherText);
+	vector<score_t> scores(const FrequencyCollector &standardFreq, const vector<string> &population, const vector<char> &cipherText);
+	score_t fitness(const FrequencyCollector &standardFreq, const FrequencyCollector testFreq);
 
 private:
 	//	Produces a pseudo-random key	
@@ -104,7 +104,7 @@ private:
 	std::pair<int, int> selectParents(const vector<score_t> scores,	rng_t &rng);
 
 	//	Applies the fitness function on the entire population
-	vector<score_t> fitnessPopulation(const NGrams &standardFreq,
+	vector<score_t> fitnessPopulation(const FrequencyCollector &standardFreq,
 			const vector<string> &population, const vector<char> &cipherText);
 
 	

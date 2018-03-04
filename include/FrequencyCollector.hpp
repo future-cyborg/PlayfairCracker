@@ -3,25 +3,16 @@
 
 #include <unordered_map>
 
-/*  Return codes shared amongst functions:
-        0 - Normal
-        1 - File can not be opened
-        2 - Length of ngrams found in file differ from arguement n
-*/
+
 typedef unsigned long long count_t;
-struct NGrams {
-    int n;
-    count_t count;
-    std::unordered_map<std::string, count_t> *freqs;
-};
 
 class FrequencyCollector {
 public:
-     FrequencyCollector();
+     FrequencyCollector(int N);
     ~ FrequencyCollector();
     
     //  Parses Ngram file and checks for proper format, and no duplicates.
-    bool validNgramFile(char fileName[], int N);
+    bool validNgramFile(char fileName[]);
     
     /*  Read file that contains n-gram counts for English frequency and set standardFreq
         The file read must be formatted so that every line contains one ngram, a single space,
@@ -30,14 +21,14 @@ public:
         ABFT 12
         ABCA 19      */
     // Throws exception
-    int readNgramCount(char fileName[], NGrams &nGrams);
+    int readNgramCount(char fileName[]);
 
     // Throws exception
-    int writeNGramCount(char fileName[], NGrams &nGrams);
+    int writeNGramCount(char fileName[]);
 
     //  This will collect ngrams from fileRead and write them to fileWrite
     // Throws exception
-    int setNGramCount(int n, char fileRead[], char fileWrite[]);
+    int setNGramCount(char fileRead[], char fileWrite[]);
 
     //  Puts file into stream and calls collectFrequencies
     //  
@@ -45,13 +36,22 @@ public:
     //  0 - Normal
     //  1 - File can not be opened
     // Throws exception
-    int collectNGramsFile(char fileName[], NGrams &nGrams);
+    int collectNGramsFile(char fileName[]);
 
     //  Reads from stream and compiles map of ngram frequencies
-    int collectNGrams(std::stringstream &buffer, NGrams &nGrams);
+    int collectNGrams(std::stringstream &buffer);
 
-    int printNGrams(NGrams &nGrams);
+    int printNGrams();
+
+    int getN() const;
+    int clear();
+    bool isEmpty() const;
+    double frequency(std::string ngram) const;
 private:
+    const int n;
+    unsigned long long totalCount;
+    std::unordered_map<std::string, count_t> freqs;
+
     //  Returns the number of lines in a file
     // Throws exception
     unsigned long numFileLines(char* fileName);
