@@ -31,27 +31,10 @@ Key::Key(std::string keyWord, char doubleFill, char extraFill, char omitLetter, 
 
 Key::~Key() { }
 
-/**
- * @brief 		Returns keyword as given in constructor
- * 
- * @details 	The keyword given in constructor is returned, rather than the keyword
- * 					as it appears in the square. (e.g. applecake,  not APLECK)
- * 
- * @return keyword
- */
 std::string Key::getKeyword() {
 	return keyword;
 }
 
-/**
- * @brief 		Encrypts plainText with key
- * @details 	Call sanitizeText() on plainText before using this function to ensure no
- * 					errors occur.
- * 
- * @param plainText 	Must only contain the 25 valid uppercase characters. There will
- * 							be errors otherwise. (Likely out_of_range exception).
- * @return  Encrypted cipherText
- */
 std::vector<char> Key::encrypt(const std::vector<char> &plainText) {
 	std::vector<char> cipherText;
 	cipherText.reserve(plainText.size());
@@ -88,16 +71,6 @@ std::vector<char> Key::encrypt(const std::vector<char> &plainText) {
 	return cipherText;
 }
 
-/**
- * @brief 		Decrypts cipherText with key
- * @details 	Call sanitizeText() on cipherText before using this function to ensure no
- * 					errors occur. Letters added during encryption, due to double letters
- * 					or odd length text, are still included in decrypted text.
- * 
- * @param cipherText 	Must only contain the 25 valid uppercase characters. There will
- * 							be errors otherwise. (Likely out_of_range exception).
- * @return Decrypted plainText
- */
 std::vector<char> Key::decrypt(const std::vector<char> &cipherText) {
 	std::vector<char> plainText;
 	plainText.reserve(cipherText.size());
@@ -124,21 +97,6 @@ std::vector<char> Key::decrypt(const std::vector<char> &cipherText) {
 	return plainText;
 }
 
-/**
- * @brief  	Prepare text for encrypt() and decrypt()
- * @details This function is used to sanitize:
- * @li 			plainText  for encrypt()
- * @li 			cipherText for decrypt()
- * @li 			keyword    for generate() *(called internally)
- *
- * Valid characters are standard Latin letters A to Z, minus letterOmit.
- * All non-valid characters are removed from text, while all lowercase equivalents
- * 		to valid characters are converted to uppercase.
- * 
- * @param text 	Reference to text to be sanitized
- * @return 	Reference to text
- */
-
 std::vector<char>& Key::sanitizeText(std::vector<char> &text) {
 	for (std::vector<char>::iterator it = text.begin() ; it != text.end();) {
 		// Change uppercase letters to lowercase
@@ -159,11 +117,7 @@ std::vector<char>& Key::sanitizeText(std::vector<char> &text) {
 	return text;
 }
 
-/**
- * @brief 	Called during construction to set up private variables
- * 
- * @return 	Return code: 0
- */
+
 int Key::generate() {
 	std::vector<char> keywordV(keyword.begin(), keyword.end());
 	sanitizeText(keywordV);
@@ -195,11 +149,6 @@ int Key::generate() {
     return 0;
 }
 
-/**
- * @brief   Encrypts digram 
- * 
- * @return 	Encrypted digram as char[2]
- */
 char* Key::encryptDigram(char a, char b) {
 	char *digram = new char[2];
 	int aPos = letterPlace.at(a);
@@ -222,11 +171,6 @@ char* Key::encryptDigram(char a, char b) {
 	return digram;
 }
 
-/**
- * @brief   Decrypts digram 
- * 
- * @return 	Decrypted digram as char[2]
- */
 char *Key::decryptDigram(char a, char b){
 	char *digram = new char[2];
 	int aPos = letterPlace.at(a);
