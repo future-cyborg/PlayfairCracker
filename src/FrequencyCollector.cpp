@@ -8,10 +8,19 @@
 #include <string.h>
 #include <regex>
 
-using std::string;
-
 FrequencyCollector::FrequencyCollector(int N) :
-	n{N}, totalCount{0}, freqs{} {}
+	n{N}, totalCount{0}, freqs{} {
+		if(N < 1) {
+			throw InvalidParameters("N must be greater than 0");
+		}
+		if(N > 13) {
+			throw InvalidParameters("N cannot be greater than 13");
+		}
+		if(N > 5) {
+			std::cout << "Collecting n-grams with an N larger than 5 might produce " <<
+				"errors or inaccurate results. It will be quite slow as well." << '\n';
+		}
+	}
 
 FrequencyCollector::~FrequencyCollector() {}
 
@@ -29,10 +38,10 @@ bool FrequencyCollector::validNgramFile(char fileName[]) {
 		return false;
 	}
 
-	std::unordered_map<string, count_t> NGrams;
+	std::unordered_map<ngram_t, count_t> NGrams;
 	long lineNum = 1;
 	while(!fileReader.eof()) {
-		string line, ngramString, countString;
+		std::string line, ngramString, countString;
 		std::getline(fileReader, line);
 
 		std::regex format("^[[:alpha:]]{" + std::to_string(n) + "} [[:digit:]]+$");
@@ -41,7 +50,7 @@ bool FrequencyCollector::validNgramFile(char fileName[]) {
 			return false;
 		}
 
-		string ngram = line.substr(0,n);
+		ngram_t ngram = line.substr(0,n);
 		if(NGrams.find(ngram) != NGrams.end()) {
 			std::cerr << "Line " << lineNum << " of " <<fileName << "has duplicate: " <<
 				ngram << '\n';
@@ -55,7 +64,6 @@ bool FrequencyCollector::validNgramFile(char fileName[]) {
 }
 
 int FrequencyCollector::readNgramCount(char fileName[]) {
-	totalCount = 0;
 	unsigned long numLines;
 	try {
 		numLines = numFileLines(fileName);
@@ -63,7 +71,7 @@ int FrequencyCollector::readNgramCount(char fileName[]) {
 		std::cerr << e.what() << '\n';
 		throw;
 	}
-	freqs.clear();
+	this->clear();
 	freqs.reserve(numLines);
 
 	std::ifstream fileReader(fileName);
@@ -75,7 +83,7 @@ int FrequencyCollector::readNgramCount(char fileName[]) {
 	
 	while(!fileReader.eof()) {
 		//	Read each line, split line into - n-gram and count
-		string line, ngramString, countString;
+		std::string line, ngramString, countString;
 		std::getline(fileReader, line);
 		// 	Split the line
 		std::stringstream ss(line);
@@ -103,7 +111,7 @@ int FrequencyCollector::readNgramCount(char fileName[]) {
 	}
 	return 0;
 }
-// Throws exception
+
 int FrequencyCollector::writeNGramCount(char fileName[]) {
 	std::ofstream fileWriter(fileName);
 	if(fileWriter.fail()) {
@@ -112,20 +120,17 @@ int FrequencyCollector::writeNGramCount(char fileName[]) {
 		throw std::ios_base::failure(e);
 	}
 
-	for(auto it = freqs.begin(); it != freqs.end(); ++it) {
-		fileWriter << it->first << " " << it->second << '\n';
-	}
+	printNGrams(fileWriter);
 	return 0;
 }
 
-// Throws exception
 int FrequencyCollector::setNGramCount(char fileRead[], char fileWrite[]) {
+	this->clear();
 	collectNGramsFile(fileRead);
 	writeNGramCount(fileWrite);
 	return 0;
 }
 
-// Throws exception
 int FrequencyCollector::collectNGramsFile(char fileName[]) {
 	std::ifstream fileReader(fileName);
 	if(fileReader.fail()) {
@@ -137,11 +142,11 @@ int FrequencyCollector::collectNGramsFile(char fileName[]) {
 	std::stringstream buffer;
 	buffer << fileReader.rdbuf();
 
-	return collectNGrams(buffer);
+	collectNGrams(buffer);
+	return 0;
 }
 
 int FrequencyCollector::collectNGrams(std::stringstream &buffer) {
-	totalCount = 0;
 	// 	Read stream 1 letter at a time and add them to this queue
 	// 	Queue will "rotate" as letters get added
 	char *queue = new char[n];
@@ -165,7 +170,7 @@ int FrequencyCollector::collectNGrams(std::stringstream &buffer) {
 		queue[curPos++] = toupper(ch);
 		curPos = curPos % n;
 		// 	Reorder the chars starting with curPos and wrapping
-		string ngram;
+		ngram_t ngram;
 		for(int i = 0; i < n; i++) {
 			ngram.push_back(queue[(curPos + i) % n]);
 		}
@@ -176,7 +181,37 @@ int FrequencyCollector::collectNGrams(std::stringstream &buffer) {
 	return 0;
 }
 
-// Throws exception
+int FrequencyCollector::printNGrams(std::ostream &buffer) {
+    for(auto it = freqs.begin(); it != freqs.end(); ++it) {
+        buffer << it->first << " " << it->second << '\n';
+    }
+    return 0;
+}
+
+int FrequencyCollector::getN() const {
+	return n;
+}
+
+double FrequencyCollector::frequency(ngram_t ngram) const {
+	auto tF = freqs.find(ngram);
+		if(tF != freqs.end())
+			return double(tF->second) / totalCount;
+		else
+			return 0;
+}
+
+bool FrequencyCollector::isEmpty() const {
+	if(freqs.empty()) return true;
+	return false;
+}
+
+int FrequencyCollector::clear() {
+	totalCount = 0;
+	freqs.clear();
+	return 0;
+}
+
+
 unsigned long FrequencyCollector::numFileLines(char* fileName) {
 	unsigned long numLines = 0;
 	std::ifstream fileReader(fileName);
@@ -186,39 +221,10 @@ unsigned long FrequencyCollector::numFileLines(char* fileName) {
 		throw std::ios_base::failure(e);
 	}
 	
-	string buffer;
+	std::string buffer;
 	while(!fileReader.eof()) {
 		std::getline(fileReader, buffer);
 		++ numLines;
 	}
 	return numLines;
-}
-int FrequencyCollector::printNGrams() {
-    for(auto it = freqs.begin(); it != freqs.end(); ++it) {
-        std::cout << it->first << " " << it->second << '\n';
-    }
-    return 0;
-}
-
-double FrequencyCollector::frequency(std::string ngram) const {
-	auto tF = freqs.find(ngram);
-		if(tF != freqs.end())
-			return double(tF->second) / totalCount;
-		else
-			return 0;
-}
-
-int FrequencyCollector::getN() const {
-	return n;
-}
-
-int FrequencyCollector::clear() {
-	totalCount = 0;
-	freqs.clear();
-	return 0;
-}
-
-bool FrequencyCollector::isEmpty() const {
-	if(freqs.empty()) return true;
-	return false;
 }
