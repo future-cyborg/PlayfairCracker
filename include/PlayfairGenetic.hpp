@@ -54,7 +54,7 @@ enum MutationType { SWAP, INVERSION };
 	INVERSION 	A member of the population has a mutationRate chance of having
 				a random sized substring of letters reversed.
 */
-struct GenerationParams {
+struct GenParams {
 	int numChildren;
 	int newRandom;
 	double mutationRate;
@@ -82,7 +82,7 @@ public:
 
 
 	int nextGeneration(const FrequencyCollector &standardFreq, vector<string> &population,
-			const vector<char> &cipherText,	const GenerationParams &genParams,
+			const vector<char> &cipherText,	const GenParams &genParams,
 			rng_t &rng);
 
 	//	Prints given population
@@ -98,7 +98,7 @@ private:
 	// 	Produces a key from seed
 	string seedKey(rng_t &rng, string seed);
 
-	list<string> keepBest(const vector<string> &population, const vector<score_t> scores, const GenerationParams genParams);
+	list<string> keepBest(const vector<string> &population, const vector<score_t> scores, const GenParams genParams);
 
 	//	Returns the indices of the two parents
 	std::pair<int, int> selectParents(const vector<score_t> scores,	rng_t &rng);
@@ -109,17 +109,17 @@ private:
 
 	
 
-	int crossover(vector<string> &population, const GenerationParams &genParams,
+	int crossover(vector<string> &population, const GenParams &genParams,
 			rng_t &rng);
 
-	int mutation(vector<string> &population, const GenerationParams &genParams,
+	int mutation(vector<string> &population, const GenParams &genParams,
 			rng_t &rng);
 
 	//	Each letter 
-	int swapMutation(string &key, const GenerationParams &genParams,
+	int swapMutation(string &key, const GenParams &genParams,
 			rng_t &rng);
 
-	int inversionMutation(string &key, const GenerationParams &genParams,
+	int inversionMutation(string &key, const GenParams &genParams,
 			rng_t &rng);
 
 	//	Iterates using .at()
