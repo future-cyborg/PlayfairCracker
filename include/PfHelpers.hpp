@@ -10,34 +10,26 @@
 using std::vector;
 using std::string;
 
-class Exception {
+class Exception : public std::exception {
 public:
    Exception(const char* msg = "Error");
   ~Exception( );
 
-   const char* getMessage( ) const;
-private:
+   virtual const char* what( ) const throw ();
+protected:
    const char* e_msg;
 };
 
-class InvalidKeyException {
+class InvalidKeyException : public Exception {
 public:
    InvalidKeyException(const char* msg = "InvalidKeyException");
   ~InvalidKeyException( );
-
-   const char* getMessage( ) const;
-private:
-   const char* e_msg;
 };
 
-class InvalidParameters {
+class InvalidParameters : public Exception {
 public:
 	InvalidParameters(const char* msg = "Invalid Parameters");
 	~InvalidParameters( );
-
-	const char* getMessage( ) const;
-private:
-	const char* e_msg;
 };
 
 namespace PfHelpers {

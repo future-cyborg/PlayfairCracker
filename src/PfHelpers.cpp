@@ -9,18 +9,15 @@
 using std::vector;
 using std::string;
 
-Exception::Exception(const char* msg) : e_msg(msg) {}
+Exception::Exception(const char* msg) : e_msg{msg} {}
 Exception::~Exception( ) {}
-const char* Exception::getMessage( ) const {return(e_msg);}
+const char* Exception::what( ) const throw() {return(e_msg);}
 
-InvalidKeyException::InvalidKeyException(const char* msg) : e_msg(msg) {}
+InvalidKeyException::InvalidKeyException(const char* msg) : Exception{msg} {}
 InvalidKeyException::~InvalidKeyException( ) {}
-const char* InvalidKeyException::getMessage( ) const {return(e_msg);}
 
-
-InvalidParameters::InvalidParameters(const char* msg) : e_msg{msg} {}
+InvalidParameters::InvalidParameters(const char* msg) : Exception{msg} {}
 InvalidParameters::~InvalidParameters( ) {}
-const char* InvalidParameters::getMessage( ) const {return(e_msg);}
 
 namespace PfHelpers {
 	std::ifstream::pos_type fileSize(const string fileName) {

@@ -108,7 +108,7 @@ int PlayfairGenetic::nextGeneration(const FrequencyCollector &standardFreq, vect
 		std::cerr << "Mutation step produced an invalid key." << '\n';
 		throw;
 	} catch(InvalidParameters e) {
-		std::cerr << e.getMessage() << '\n';
+		std::cerr << e.what() << '\n';
 	}
 
 	//	Add the best elements that we kept earlier
@@ -217,7 +217,7 @@ vector<score_t> PlayfairGenetic::fitnessPopulation(const FrequencyCollector &sta
 		try {
 			scores.push_back(fitness(standardFreq, fCollector));
 		} catch(Exception e) {
-			std::cerr << e.getMessage() << '\n';
+			std::cerr << e.what() << '\n';
 			throw;
 		}
 	}
@@ -320,7 +320,7 @@ int PlayfairGenetic::mutation(vector<string> &population, const GenParams &genPa
 				msg = msg + key + "' were unsuccessful.";
 				throw Exception(msg.c_str());
 			}
-			
+
 			switch(genParams.mutationType) {
 				case SWAP: {
 					swapMutation(key, genParams, rng);
