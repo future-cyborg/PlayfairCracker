@@ -310,7 +310,8 @@ int PlayfairGenetic::crossover(vector<string> &population, const GenParams &genP
 int PlayfairGenetic::mutation(vector<string> &population, const GenParams &genParams, rng_t &rng) {
 	int index = 0;
 	while(index < (int)population.size()) {
-		string keyBefore, key = population[index];
+		string keyBefore = population[index];
+		string key = population[index];
 		// Count how many times the mutation doesn't change the key
 		int count = -1;
 		while(keyBefore.compare(key) == 0) {
