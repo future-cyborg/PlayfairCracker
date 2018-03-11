@@ -17,7 +17,7 @@ PACKAGEDIR=playfairCracker-$(VERSION)
 TARBALL=../$(PACKAGEDIR).tar.gz
 
 HELPER  = PfHelpers.xx
-SCRACK	= Key.xx PlayfairGenetic.xx FrequencyCollector.xx $(HELPER)
+SCRACK	= Key.xx PlayfairGenetic.xx FrequencyCollector.xx EnglishFitness.xx $(HELPER)
 
 all: playfair playfairCracker doc
 
@@ -30,10 +30,10 @@ $(OBJDIR)/playfair.o: $(SRCDIR)/playfair.cpp $(INCDIR)/Key.hpp $(INCDIR)/optionp
 playfairCracker: $(OBJDIR)/playfairCracker.o $(patsubst %.xx, $(OBJDIR)/%.o, $(SCRACK))
 	$(CMD) $^ -o $@
 
-$(OBJDIR)/playfairCracker.o: $(SRCDIR)/playfairCracker.cpp $(patsubst %.xx, $(INCDIR)/%.hpp, $(SCRACK)) $(patsubst %.xx, $(SRCDIR)/%.cpp, $(SCRACK))
+$(OBJDIR)/playfairCracker.o: $(SRCDIR)/playfairCracker.cpp $(patsubst %.xx, $(INCDIR)/%.hpp, $(SCRACK))
 	$(CMD) -c $< -o $@
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(INCDIR)/%.hpp $(patsubst %.xx, $(INCDIR)/%.hpp, $(HELPER)) $(patsubst %.xx, $(SRCDIR)/%.cpp, $(HELPER))
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(INCDIR)/%.hpp $(patsubst %.xx, $(INCDIR)/%.hpp, $(HELPER))
 	$(CMD) -c $< -o $@
 
 doc:
