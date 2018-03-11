@@ -24,7 +24,7 @@ public:
      *          Require: N > 0, N < 14
      *          Suggest: N < 6
      */
-     FrequencyCollector(int N);
+     FrequencyCollector(unsigned N);
     ~ FrequencyCollector();
     
     /**
@@ -171,7 +171,7 @@ public:
      * 
      * @return  integer
      */
-    int getN() const;
+    unsigned getN() const;
 
     /**
      * @brief Get frequency of ngram
@@ -209,7 +209,7 @@ public:
 
 private:
     /// N for the type of n-gram.
-    const int n;
+    const unsigned n;
 
     /// Stores the totalCount of collected frequencies.
     unsigned long long totalCount;

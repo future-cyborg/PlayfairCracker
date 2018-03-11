@@ -8,7 +8,7 @@
 #include <string.h>
 #include <regex>
 
-FrequencyCollector::FrequencyCollector(int N) :
+FrequencyCollector::FrequencyCollector(unsigned N) :
 	n{N}, totalCount{0}, freqs{} {
 		if(N < 1) {
 			throw InvalidParameters("N must be greater than 0");
@@ -94,7 +94,7 @@ int FrequencyCollector::readNgramCount(char fileName[]) {
 		totalCount += count;
 
 		// 	If the n-gram read was of the wrong length.
-		if((int)ngramString.size() != n) {
+		if(ngramString.size() != n) {
 			std::cerr << "Ngram length contradiction!" << '\n';
 			std::cerr << "  Ngram read from " << fileName << " was of length: " << ngramString.size() << '\n';
 			std::cerr << "  Ngram length expected: " << n << '\n';
@@ -102,7 +102,7 @@ int FrequencyCollector::readNgramCount(char fileName[]) {
 		}
 		// 	Convert string to char[]
 		char* ngram = new char[n];
-		for(int i = 0; i < n; i ++) {
+		for(unsigned i = 0; i < n; i ++) {
 			ngram[i] = ngramString.at(i);
 		}
 		// 	Add ngram:count to hashmap nGrams
@@ -151,7 +151,7 @@ int FrequencyCollector::collectNGrams(std::stringstream &buffer) {
 	// 	Queue will "rotate" as letters get added
 	char *queue = new char[n];
 	//	Keep track of the current start of the queue
-	int curPos = 0;
+	unsigned curPos = 0;
 	// 	This first while-loop is just to fill up the queue
 	//	Collect the first N letters before adding the ngram to map
 	char ch;
@@ -171,7 +171,7 @@ int FrequencyCollector::collectNGrams(std::stringstream &buffer) {
 		curPos = curPos % n;
 		// 	Reorder the chars starting with curPos and wrapping
 		ngram_t ngram;
-		for(int i = 0; i < n; i++) {
+		for(unsigned i = 0; i < n; i++) {
 			ngram.push_back(queue[(curPos + i) % n]);
 		}
 		// 	Count how many times that n-gram occurs
@@ -188,7 +188,7 @@ int FrequencyCollector::printNGrams(std::ostream &buffer) {
     return 0;
 }
 
-int FrequencyCollector::getN() const {
+unsigned FrequencyCollector::getN() const {
 	return n;
 }
 
