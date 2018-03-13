@@ -38,6 +38,15 @@ namespace PfHelpers {
 	// Throws exception
 	int readFile(const char* fileName, vector<char> &text);
 
+	int printPopulation(vector<string> &population);
+
+	//	Iterates using .at()
+	//	Used on string, vector<char>, etc.
+	template <typename Iterable>
+	bool validKey(Iterable key);
+
+	template <typename Number>
+	Number sumVector(vector<Number> vec);
 
 	class Timer	{
 	public:

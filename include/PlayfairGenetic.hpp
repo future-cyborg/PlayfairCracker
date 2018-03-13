@@ -1,135 +1,158 @@
 #ifndef PLAYFAIRGENETIC_HPP
 #define PLAYFAIRGENETIC_HPP
 
-#include "FrequencyCollector.hpp"
+#include "EnglishFitness.hpp"
 #include "Key.hpp"
 #include "pcg_random.hpp"
-#include <string>
-#include <unordered_map>
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <random>
-#include <chrono>
-#include <algorithm>
-#include <iterator>
 #include <list>
 
 using std::vector;
-using std::unordered_map;
 using std::string;
-using std::stringstream;
-using std::list;
 
-typedef double score_t;
+/** Random number generator type */
 typedef pcg32 rng_t;
+/** Population type */
+typedef vector<string> pop_t;
 
-
-/*
-	--- PARAMETERS ---
-	These parameters are applied each generation	
-
-	numChildren
-		How many children will be produced
-
-	newRandom
-		How many new randomized keys will be added to population
- 	
- 	mutationRate
- 		Mutation is applied to each individual. MUST BE BETWEEN 0.0 - 1.0
- 		The effect of this rate depends on mutationType
- 	
- 	mutationType	MutationType
- 		
- 	killWorst
- 		How many of the worst population are killed off each generation.
- 		In effect, the members who don't get any proportional chance.
-
+/**
+ * The mutation function to be used. Each child is guaranteed to be mutated.
  */
-enum MutationType { SWAP, INVERSION };
-/*
-	SWAP  		mutationRate affects the chance that a letter will be swapped.
-				Each letter in key is added to a list that then gets shuffled.
+enum MutationType {
+	/**
+	 * The swap mutation chooses select letters in the key and shuffles them.
+	 * The mutationRate affects the chance that a letter will be one that is shuffled.
+	 */
+	SWAP,
+	/**
+	 * A random substring of the key is inversed. mutationRate has no effect.
+	 */
+	INVERSION
+};
 
-	INVERSION 	A member of the population has a mutationRate chance of having
-				a random sized substring of letters reversed.
-*/
+/**
+ * @brief Parameters applied to each generation.
+ * 
+ * GenParams holds the parameters for this genetic algorithm. These values are applied
+ * 	to each generation.
+ */
 struct GenParams {
-	int numChildren;
-	int newRandom;
+	/** The number of children produced */
+	unsigned numChildren;
+	/** The number of randomized keys added to population */
+	unsigned newRandom;
+	/** see mutationType */
+	unsigned mutationType;
+	/**
+	 * Mutation is applied to each individual.
+	 * The effect of this rate depends on mutationType
+	 * @attention Must be in range (0.0 - 1.0)
+	 */
 	double mutationRate;
-	int mutationType;
-	int killWorst;
-	int keepBest;
+	/**
+	 * The number of worst population members to be killed before the parent
+	 * 	selection step. Members have a proportional chance of being selected as
+	 * 	a parent. The ones we kill off have no chance.
+	 */
+	unsigned killWorst;
+	/**
+	 * The number of best population members to continue to the next generation.
+	 * 	Aside from these best, only the parents and children continue.
+	 */
+	unsigned keepBest;
 };
 
-class PlayfairGenetic {
-public:
-	PlayfairGenetic();
-	~PlayfairGenetic();
+/**
+ * @namespace PlayfairGenetic
+ * @brief A genetic algorithm to crack English Playfair encryptions.
+ * 
+ * A genetic algorithm to crack English Playfair encryptions. Uses the GenParams
+ * 	struct for options.
+ * 	
+ * This class provides functionality for initializing population and progressing a
+ * 	generation, along with some helpers. This class does not manage the conditions
+ * 	determining when the algorithm will stop.
+ * 
+ * @b Example:
+ * @include example_genetic.cpp
+ */
+namespace PlayfairGenetic {
+	/**
+	 * @brief Initialize a population randomly
+	 * 
+	 * Initializes a population of random keys
+	 * 
+	 * @param popSize 		Size of population to be built
+	 * @param population 	Reference to population, will be cleared and resized
+	 * @param rng 			Reference to random number generator
+	 * @return 				Reference to population
+	 */
+	pop_t& initializePopulationRandom(int popSize, pop_t &population, rng_t &rng);
 
-	//	This initializes a pseudo-random population. 'population' will be cleared 
-	//  	and resized appropriately.
-	int initializePopulationRandom(int popSize, vector<string> &population,
-			rng_t &rng);
+	/**
+	 * @brief Initialize a population from a seed
+	 * 
+	 * Initialize a population from a seed. All members will start with the given seed,
+	 * 	with the remaining letters randomized.
+	 * 	
+	 * For example: If seed is 'Apple', each member will start with 'APLE'.
+	 * 
+	 * @param popSize 		Size of population to be built
+	 * @param population 	Reference to population, will be cleared and resized
+	 * @param rng 			Reference to random number generator
+	 * @param seed 			Seed for each member
+	 * @return 				Reference to population
+	 */
+	pop_t& initializePopulationSeed(int popSize, pop_t &population, rng_t &rng, string seed);
 
-	//	This initializes a population with pseudo-random variation around a given
-	//		seed, or keyword. If seed is 'Apple', each member will start with
-	//		'APLE', with the remaining characters randomized. 'population' will be
-	//		cleared and resized appropriately. 
-	int initializePopulationSeed(int popSize, vector<string> &population,
-			rng_t &rng, string seed);
+	/**
+	 * @brief Produce the next generation
+	 * 
+	 * Produce the next generation. Uses GenParams as options to do the following steps:
+	 * 
+	 * 1. Get fitness scores for each member, using decrypted cipherText
+	 * 2. Kill off worst members
+	 * 3. Copy and save best members
+	 * 4. Select two different members to be the parents, kill off everyone else
+	 * 5. Produce children
+	 * 6. Mutate parents and children
+	 * 7. Add random keys to population
+	 * 8. Add best members from step 3 to population
+	 * 
+	 * @param englishFit 	Reference to EnglishFitness class to be used for fitness function 
+	 * @param cipherText 	Reference to the cipherText
+	 * @param genParams 	Reference to GenParams
+	 * @param population 	Reference to population
+	 * @param rng 			Reference to random number generator
+	 * @return 				Reference to population
+	 */
+	pop_t& nextGeneration(const EnglishFitness &englishFit, const vector<char> &cipherText,
+			const GenParams &genParams,	pop_t &population, rng_t &rng);
 
+	/**
+	 * @brief Get the key and score for the most fit member
+	 * 
+	 * Get the key and score for the most fit member of the population
+	 * 
+	 * @param population 	Reference to population
+	 * @param scores 		Reference to fitness scores
+	 * 
+	 * @return 				Reference to population
+	 */
+	std::pair<string, score_t> bestMember(const pop_t &population, 
+			const vector<score_t> &scores);
 
-	int nextGeneration(const FrequencyCollector &standardFreq, vector<string> &population,
-			const vector<char> &cipherText,	const GenParams &genParams,
-			rng_t &rng);
-
-	//	Prints given population
-	int printPopulation(vector<string> &population);
-
-	std::pair<string, score_t> bestMember(const FrequencyCollector &standardFreq, const vector<string> &population, const vector<char> &cipherText);
-	vector<score_t> scores(const FrequencyCollector &standardFreq, const vector<string> &population, const vector<char> &cipherText);
-	score_t fitness(const FrequencyCollector &standardFreq, const FrequencyCollector testFreq);
-
-private:
-	//	Produces a pseudo-random key	
-	string randomKey(rng_t &rng);
-	// 	Produces a key from seed
-	string seedKey(rng_t &rng, string seed);
-
-	list<string> keepBest(const vector<string> &population, const vector<score_t> scores, const GenParams genParams);
-
-	//	Returns the indices of the two parents
-	std::pair<int, int> selectParents(const vector<score_t> scores,	rng_t &rng);
-
-	//	Applies the fitness function on the entire population
-	vector<score_t> fitnessPopulation(const FrequencyCollector &standardFreq,
-			const vector<string> &population, const vector<char> &cipherText);
-
-	
-
-	int crossover(vector<string> &population, const GenParams &genParams,
-			rng_t &rng);
-
-	int mutation(vector<string> &population, const GenParams &genParams,
-			rng_t &rng);
-
-	//	Each letter 
-	int swapMutation(string &key, const GenParams &genParams,
-			rng_t &rng);
-
-	int inversionMutation(string &key, const GenParams &genParams,
-			rng_t &rng);
-
-	//	Iterates using .at()
-	//	Used on string, vector<char>, etc.
-	template <typename Iterable>
-	bool validKey(Iterable key);
-
-	template <typename Number>
-	Number sumVector(vector<Number> vec);
-};
-
+	/**
+	 * @brief Calculate the fitness scores for a population
+	 * 
+	 * Calculate the fitness scores for a population with the given cipherText
+	 * 
+	 * @param englishFit 	Reference to EnglishFitness class to be used for fitness function
+	 * @param population 	Reference to population
+	 * @param cipherText 	Reference to the cipherText
+	 * @return 				Reference to population
+	 */
+	vector<score_t> fitScores(const EnglishFitness &englishFit, const pop_t &population, 
+			const vector<char> &cipherText);
+}	
 
 #endif // PLAYFAIRGENETIC_HPP

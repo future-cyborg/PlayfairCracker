@@ -5,9 +5,11 @@
 #include <iostream>
 #include <chrono>
 #include <string.h>
+#include <unordered_map>
 
 using std::vector;
 using std::string;
+using std::unordered_map;
 
 Exception::Exception(const char* msg) : e_msg{msg} {}
 Exception::~Exception( ) {}
@@ -45,7 +47,39 @@ namespace PfHelpers {
 
 	}
 
+	int printPopulation(vector<string> &population) {
+		for(unsigned i = 0; i < population.size(); i++) {
+			std::cout << population[i] << '\n';
+		}
+		return 0;
+	}
 
+	template <typename Iterable>
+	bool validKey(Iterable key) {
+		if(key.size() != 25) return false;
+
+		unordered_map<char, int> letterUsed;
+		for(unsigned index = 0; index < key.size(); index++) {
+			//	If the letter has alreay been put in
+			if(letterUsed.find(key[index]) != letterUsed.end()) {
+				return false;
+			}
+			letterUsed.insert(std::make_pair(key[index], 0));
+		}
+		return true;
+	}
+
+	template <typename Number>
+	Number sumVector(vector<Number> vec) {
+		Number total = 0;
+		for(auto it = vec.begin(); it != vec.end(); ++it)
+			total += *it;
+		return total;
+	}
+
+	template bool validKey(string);
+	template bool validKey(vector<char>);
+	template double sumVector(vector<double>);
 
 	Timer::Timer() : m_beg(clock_t::now()) {}
 	

@@ -37,6 +37,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(INCDIR)/%.hpp $(patsubst %.xx, $(INCDIR)/%.hpp,
 	$(CMD) -c $< -o $@
 
 doc:
+	doxygen
 
 clean:
 	rm -f $(OBJDIR)/*.o playfair playfairCracker

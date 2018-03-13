@@ -344,7 +344,7 @@ EXCLUDE_PATTERNS       = */src/playfair* */include/pcg*
 EXCLUDE_SYMBOLS        =
 
 
-EXAMPLE_PATH           =
+EXAMPLE_PATH           = example/
 
 
 EXAMPLE_PATTERNS       =
