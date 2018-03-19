@@ -23,6 +23,8 @@ public:
      * @param N The number of characters in this sized n-gram.
      *          Require: N > 0, N < 14
      *          Suggest: N < 6
+     *          
+     * @throw InvalidParameters     If (N <= 0 || N > 13)
      */
      FrequencyCollector(unsigned N);
     ~ FrequencyCollector();
@@ -51,7 +53,7 @@ public:
      * @param fileName  The file to be checked
      * @return  bool
      */    
-    bool validNgramFile(char fileName[]);
+    bool validNgramFile(const char* fileName);
 
     /**
      * @brief Read a file that contains n-gram counts
@@ -70,7 +72,7 @@ public:
      * @param fileName  The file to be read
      * @return  0 on completion
      */
-    int readNgramCount(char fileName[]);
+    int readNgramCount(const char* fileName);
 
     /**
      * @brief Writes n-gram counts to file
@@ -82,7 +84,7 @@ public:
      * @param fileName  The file to be read
      * @return  0 on completion
      */
-    int writeNGramCount(char fileName[]);
+    int writeNGramCount(const char* fileName);
 
     /**
      * @brief Collects n-gram frequencies and writes to file
@@ -97,7 +99,7 @@ public:
      * @param fileWrite The file to write to
      * @return  0 on completion
      */
-    int setNGramCount(char fileRead[], char fileWrite[]);
+    int setNGramCount(const char* fileRead, const char* fileWrite);
 
     /**
      * @brief Parses file to collect n-gram frequencies
@@ -114,7 +116,7 @@ public:
      * @param fileName  The file to be read
      * @return  0 on completion
      */
-    int collectNGramsFile(char fileName[]);
+    int collectNGramsFile(const char* fileName);
 
     /**
      * @brief Parse stringstream to collect n-gram frequencies
@@ -232,7 +234,7 @@ private:
      * @param fileName  The file to be read
      * @return unsigned long
      */
-    unsigned long numFileLines(char* fileName);
+    unsigned long numFileLines(const char* fileName);
 };
 
 #endif // FREQUENCYCOLLECTOR_HPP
