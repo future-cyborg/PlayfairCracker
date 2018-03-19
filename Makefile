@@ -1,7 +1,7 @@
 CXX 	= g++ -std=c++11
 CXXFLAGS= -Wall -g -fmessage-length=0
 # OPTIMIZE= -Os -fomit-frame-pointer 
-OPTIMIZE= -O0 -fomit-frame-pointer 
+OPTIMIZE= -O0 -fomit-frame-pointer
 
 SRCDIR  = src
 OBJDIR  = obj
@@ -17,14 +17,22 @@ PACKAGEDIR=playfairCracker-$(VERSION)
 TARBALL=../$(PACKAGEDIR).tar.gz
 
 HELPER  = PfHelpers.xx
+
+NGRAM   = FrequencyCollector.xx $(HELPER)
 SCRACK	= Key.xx PlayfairGenetic.xx FrequencyCollector.xx EnglishFitness.xx $(HELPER)
 
-all: playfair playfairCracker doc
+all: playfair ngramFrequency playfairCracker doc
 
-playfair: $(OBJDIR)/playfair.o $(OBJDIR)/Key.o $(INCDIR)/optionparser.h
+playfair: $(OBJDIR)/playfair.o $(OBJDIR)/Key.o
 	$(CMD) $(OBJDIR)/playfair.o $(OBJDIR)/Key.o -o $@
 
-$(OBJDIR)/playfair.o: $(SRCDIR)/playfair.cpp $(INCDIR)/Key.hpp $(INCDIR)/optionparser.h
+$(OBJDIR)/playfair.o: $(SRCDIR)/playfair.cpp $(INCDIR)/Key.hpp
+	$(CMD) -c $< -o $@
+
+ngramFrequency: $(OBJDIR)/ngramFrequency.o $(patsubst %.xx, $(OBJDIR)/%.o, $(NGRAM))
+	$(CMD) $^ -o $@
+
+$(OBJDIR)/ngramFrequency.o: $(SRCDIR)/ngramFrequency.cpp $(patsubst %.xx, $(INCDIR)/%.hpp, $(NGRAM))
 	$(CMD) -c $< -o $@
 
 playfairCracker: $(OBJDIR)/playfairCracker.o $(patsubst %.xx, $(OBJDIR)/%.o, $(SCRACK))
