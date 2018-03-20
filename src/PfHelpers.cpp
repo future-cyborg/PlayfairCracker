@@ -34,9 +34,9 @@ namespace PfHelpers {
 
 		std::ifstream fileReader(fileName);
 		if(fileReader.fail()) {
-			char e[] = "Failed to open: ";
-			strncat(e, fileName, 20);
-			throw std::ios_base::failure(e);
+			string e = "Failed to open: ";
+			e += fileName;
+			throw std::ios_base::failure(e.c_str());
 		}
 		
 		char ch;

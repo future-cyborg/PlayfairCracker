@@ -76,9 +76,9 @@ int FrequencyCollector::readNgramCount(const char* fileName) {
 
 	std::ifstream fileReader(fileName);
 	if(fileReader.fail()) {
-		char e[] = "Failed to open: ";
-		strncat(e, fileName, 20);
-		throw std::ios_base::failure(e);
+		string e = "Failed to open: ";
+		e += fileName;
+		throw std::ios_base::failure(e.c_str());
 	}
 	
 	while(!fileReader.eof()) {
@@ -110,9 +110,9 @@ int FrequencyCollector::readNgramCount(const char* fileName) {
 int FrequencyCollector::writeNGramCount(const char* fileName) {
 	std::ofstream fileWriter(fileName);
 	if(fileWriter.fail()) {
-		char e[] = "Failed to open: ";
-		strncat(e, fileName, 20);
-		throw std::ios_base::failure(e);
+		string e = "Failed to open: ";
+		e += fileName;
+		throw std::ios_base::failure(e.c_str());
 	}
 
 	printNGrams(fileWriter);
@@ -129,9 +129,9 @@ int FrequencyCollector::setNGramCount(const char* fileRead, const char* fileWrit
 int FrequencyCollector::collectNGramsFile(const char fileName[]) {
 	std::ifstream fileReader(fileName);
 	if(fileReader.fail()) {
-		char e[] = "Failed to open: ";
-		strncat(e, fileName, 20);
-		throw std::ios_base::failure(e);
+		string e = "Failed to open: ";
+		e += fileName;
+		throw std::ios_base::failure(e.c_str());
 	}
 
 	std::stringstream buffer;
@@ -215,9 +215,9 @@ unsigned long FrequencyCollector::numFileLines(const char* fileName) {
 	unsigned long numLines = 0;
 	std::ifstream fileReader(fileName);
 	if(fileReader.fail()) {
-		char e[] = "Failed to open: ";
-		strncat(e, fileName, 20);
-		throw std::ios_base::failure(e);
+		string e = "Failed to open: ";
+		e += fileName;
+		throw std::ios_base::failure(e.c_str());
 	}
 	
 	std::string buffer;
