@@ -22,7 +22,7 @@ score_t EnglishFitness::fitness(const FrequencyCollector &testFreq) const {
 
 	//  Iterate through all permutations of n letters
 	//  perms[] is used like an odometer
-	int *perms = new int[n];
+	int *perms = new int[n] ();
 	int max = std::pow(26,n);
 	for(int i = 0; i < max; i++) {
 		string perm;

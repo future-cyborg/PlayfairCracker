@@ -150,7 +150,7 @@ int Key::generate() {
 }
 
 char* Key::encryptDigram(char a, char b) {
-	char *digram = new char[2];
+	char *digram = new char[2]();
 	int aPos = letterPlace.at(a);
 	int bPos = letterPlace.at(b);
 	int aRow = getRow(aPos);
@@ -172,7 +172,7 @@ char* Key::encryptDigram(char a, char b) {
 }
 
 char *Key::decryptDigram(char a, char b){
-	char *digram = new char[2];
+	char *digram = new char[2]();
 	int aPos = letterPlace.at(a);
 	int bPos = letterPlace.at(b);
 	int aRow = getRow(aPos);

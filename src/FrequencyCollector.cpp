@@ -100,14 +100,9 @@ int FrequencyCollector::readNgramCount(const char* fileName) {
 			std::cerr << "  Ngram length expected: " << n << '\n';
 			throw Exception("Error: Ngram length contradiction");
 		}
-		// 	Convert string to char[]
-		char* ngram = new char[n];
-		for(unsigned i = 0; i < n; i ++) {
-			ngram[i] = ngramString.at(i);
-		}
+		
 		// 	Add ngram:count to hashmap nGrams
-		freqs.insert(std::make_pair(ngram, count));
-		delete[] ngram;
+		freqs.insert(std::make_pair(ngramString.c_str(), count));
 	}
 	return 0;
 }
@@ -149,7 +144,7 @@ int FrequencyCollector::collectNGramsFile(const char fileName[]) {
 int FrequencyCollector::collectNGrams(std::stringstream &buffer) {
 	// 	Read stream 1 letter at a time and add them to this queue
 	// 	Queue will "rotate" as letters get added
-	char *queue = new char[n];
+	char *queue = new char[n] ();
 	//	Keep track of the current start of the queue
 	unsigned curPos = 0;
 	// 	This first while-loop is just to fill up the queue
