@@ -176,6 +176,15 @@ public:
     unsigned getN() const;
 
     /**
+     * @brief Returns the total count of all n-grams
+     * 
+     * Returns the total count of all n-grams stored in this object
+     * 
+     * @return unsigned long long
+     */
+    count_t getCount() const;
+
+    /**
      * @brief Get frequency of ngram
      * 
      * Get frequency of ngram for n-grams stored in this object. Call after setting

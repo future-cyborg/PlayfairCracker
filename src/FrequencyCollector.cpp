@@ -150,7 +150,7 @@ int FrequencyCollector::collectNGrams(std::stringstream &buffer) {
 	// 	This first while-loop is just to fill up the queue
 	//	Collect the first N letters before adding the ngram to map
 	char ch;
-	while(buffer.get(ch)){
+	while(buffer.get(ch)) {
 		if(!isalpha(ch)) continue;
 		queue[curPos++] = toupper(ch);
 		// 	Fill up the queue before adding ngrams to map
@@ -185,6 +185,10 @@ int FrequencyCollector::printNGrams(std::ostream &buffer) {
 
 unsigned FrequencyCollector::getN() const {
 	return n;
+}
+
+count_t FrequencyCollector::getCount() const {
+	return totalCount;
 }
 
 double FrequencyCollector::frequency(ngram_t ngram) const {

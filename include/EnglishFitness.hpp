@@ -12,6 +12,7 @@ public:
 
 	score_t fitness(const FrequencyCollector &testFreq) const;
 	unsigned getN() const;
+	score_t maxFitness(const FrequencyCollector &testFreq) const;
 
 private:
 	FrequencyCollector sFreq;
