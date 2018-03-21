@@ -31,8 +31,10 @@ namespace {
 		for(unsigned i = 0; i < seed.length(); i++) {
 			char letter = toupper(seed[i]);
 			if(isalpha(letter)) {
-				if(!letterUsed[letter])
+				if(!letterUsed[letter]) {
+					letterUsed[letter] = true;
 					key.push_back(letter);
+				}
 			}
 		}
 		//  Might be different than seed.length() because doubles and non-letters are removed!
