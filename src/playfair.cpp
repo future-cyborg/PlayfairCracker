@@ -34,26 +34,26 @@ enum  optionIndex { UNKNOWN, HELP, METHOD, KEY, INPUTFILE, OUTPUTFILE, BIGRAM, I
 enum  encrypt { ENCRYPT, DECRYPT };
 const option::Descriptor usage[] = {
 { UNKNOWN,   0,"",  "",       Arg::Unknown, "USAGE: playfair [OPTION]... TEXT\n"
-                                            "       playfair [OPTION]... -f FILE\n"
-                                            "\nOPTIONS:" },
-{ HELP,      0,"",  "help",   Arg::None,    "      \t--help"
-                                            "\tPrint usage and exit."},
-{ METHOD,    0,"e", "encrypt",Arg::None,    "  -e, \t--encrypt (default mode) "},
-{ METHOD,    1,"d", "decrypt",Arg::None,    "  -d, \t--decrypt"},
-{ KEY,       0,"k", "key",    Arg::NonEmpty,"  -k, \t--key=KEY"},
-{ KEY,       0,"",  "keyword",Arg::NonEmpty,"      \t--keyword=KEY"},
-{ INPUTFILE, 0,"f", "file",   Arg::NonEmpty,"  -f, \t--file=FILE"},
-{ OUTPUTFILE,0,"o", "output", Arg::NonEmpty,"  -o, \t--output=FILE"},
-{ BIGRAM,    0,"b", "bigram", Arg::None,    "  -b, \t--bigram"
-                                            "\tPrint output as bigrams (e.g. BI GR AM)\n"
-                                            "\nADVANCED OPTIONS:"},
-{ INSERT,    0,"i", "insert", Arg::NonEmpty,"  -i, \t--insert=LETTER"
+                                            "       playfair [OPTION]... -f FILE"},
+{ HELP,      0,"",  "help",   Arg::None,    "\nOPTIONS:\n"
+                                            "            \t--help"
+                                            "\tPrint usage and exit"},
+{ METHOD,    0,"e", "encrypt",Arg::None,    "  -e,          \t--encrypt (default mode)"},
+{ METHOD,    1,"d", "decrypt",Arg::None,    "  -d,          \t--decrypt"},
+{ KEY,       0,"k", "key",    Arg::NonEmpty,"  -k <KEY>,    \t--key=<KEY>"},
+{ KEY,       0,"",  "keyword",Arg::NonEmpty,"               \t--keyword=<KEY>"},
+{ INPUTFILE, 0,"f", "file",   Arg::NonEmpty,"  -f <KEY>,    \t--file=<FILE>"},
+{ OUTPUTFILE,0,"o", "output", Arg::NonEmpty,"  -o <FILE>,   \t--output=<FILE>"},
+{ BIGRAM,    0,"b", "bigram", Arg::None,    "  -b,          \t--bigram"
+                                            "\tPrint output as bigrams (e.g. BI GR AM)"},
+{ INSERT,    0,"i", "insert", Arg::NonEmpty,"\nADVANCED OPTIONS:\n"
+                                            "  -i <LETTER>, \t--insert=<LETTER>"
                                             "\tLetter to insert between double letters (default Q)"},
-{ PAD,       0,"p", "pad",    Arg::NonEmpty,"  -p, \t--pad=LETTER"
+{ PAD,       0,"p", "pad",    Arg::NonEmpty,"  -p <LETTER>, \t--pad=<LETTER>"
                                             "\tLetter to pad odd length message (default X)"},
-{ SKIP,      0,"s", "skip",   Arg::NonEmpty,"  -s, \t--skip=LETTER"
+{ SKIP,      0,"s", "skip",   Arg::NonEmpty,"  -s <LETTER>, \t--skip=<LETTER>"
                                             "\tLetter that is skipped/replaced in message (default J)"},
-{ REPLACE,   0,"r", "replace",Arg::NonEmpty,"  -r, \t--replace=LETTER"
+{ REPLACE,   0,"r", "replace",Arg::NonEmpty,"  -r <LETTER>, \t--replace=<LETTER>"
                                             "\tLetter that replaces the skipped letter (default I)"},
 { UNKNOWN,   0,"",  "",       Arg::None,
  "\nEXAMPLES:\n"

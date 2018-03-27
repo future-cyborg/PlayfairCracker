@@ -37,8 +37,8 @@ struct Arg: public option::Arg {
 };
 
 std::ifstream::pos_type fileSize(const std::string fileName) {
- std::ifstream in(fileName, std::ifstream::ate | std::ifstream::binary);
- return in.tellg(); 
+    std::ifstream in(fileName, std::ifstream::ate | std::ifstream::binary);
+    return in.tellg(); 
 }
 
 enum  optionIndex { UNKNOWN, HELP, METHOD, INPUTFILE, OUTPUTFILE, N };
@@ -46,19 +46,19 @@ enum  method { COLLECT, VALID };
 const option::Descriptor usage[] = {
 { UNKNOWN,   0,"",  "",       Arg::Unknown, "USAGE: ngramFrequency [OPTION]... -n N TEXT\n"
                                             "       ngramFrequency [OPTION]... -i FILE -n N\n"
-                                            "       ngramFrequency [OPTION]... -v -i FILE -n N\n"
-                                            "\nPARAMETERS:" },
-{ N,         0,"n", "n",      Arg::Numeric, "  -n, \t"
-                                            "\tN, the size of n-gram being worked with (i.e. 2 = bigram)\n"
-                                            "\nOPTIONS:" },
-{ HELP,      0,"",  "help",   Arg::None,    "      \t--help"
-                                            "\tPrint usage and exit."},
-{ METHOD,    0,"c", "collect",Arg::None,    "  -c, \t--collect (default mode)"
+                                            "       ngramFrequency [OPTION]... -v -i FILE -n N"},
+{ N,         0,"n", "n",      Arg::Numeric, "\nPARAMETERS:\n"
+                                            "  -n,        \t"
+                                            "\tN, the size of n-gram being worked with (i.e. 2 = bigram)"},
+{ HELP,      0,"",  "help",   Arg::None,    "\nOPTIONS:\n"
+                                            "             \t--help"
+                                            "\tPrint usage and exit"},
+{ METHOD,    0,"c", "collect",Arg::None,    "  -c,        \t--collect (default mode)"
                                             "\tRead file and collect n-gram frequencies"},
-{ METHOD,    1,"v", "valid",  Arg::None,    "  -v, \t--valid"
+{ METHOD,    1,"v", "valid",  Arg::None,    "  -v,        \t--valid"
                                             "\tChecks if file contains valid n-gram counts" },
-{ INPUTFILE, 0,"i", "input",  Arg::NonEmpty,"  -i, \t--input=FILE"},
-{ OUTPUTFILE,0,"o", "output", Arg::NonEmpty,"  -o, \t--output=FILE"},
+{ INPUTFILE, 0,"i", "input",  Arg::NonEmpty,"  -i <FILE>, \t--input=<FILE>"},
+{ OUTPUTFILE,0,"o", "output", Arg::NonEmpty,"  -o <FILE>, \t--output=<FILE>"},
 { UNKNOWN,   0,"",  "",       Arg::None,
  "EXAMPLES:\n"
  "  ngramFrequency -n 2 \"collect n-gram frequencies!\"\n"
@@ -110,9 +110,9 @@ int main(int argc, char* argv[]) {
             }
             
             if(fC.validNgramFile(inputFile)) {
-                fprintf(stdout, "%s is a valid n-gram file for n = %d", inputFile, n);
+                fprintf(stdout, "%s is a valid n-gram file for n = %d\n", inputFile, n);
             } else {
-                fprintf(stdout, "%s is not a valid n-gram file for n = %d", inputFile, n);
+                fprintf(stdout, "%s is not a valid n-gram file for n = %d\n", inputFile, n);
             }
             return 0;
         }
