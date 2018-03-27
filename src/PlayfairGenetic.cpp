@@ -247,19 +247,19 @@ namespace {
 }
 
 
-pop_t& PlayfairGenetic::initializePopulationRandom(int popSize, pop_t &population, rng_t &rng) {
+pop_t& PlayfairGenetic::initializePopulationRandom(unsigned popSize, pop_t &population, rng_t &rng) {
 	population.clear();
 	population.reserve(popSize);
-	for(int i = 0; i < popSize; i++) {
+	for(unsigned i = 0; i < popSize; i++) {
 		population.push_back(randomKey(rng));
 	}
 	return population;
 }
 
-pop_t& PlayfairGenetic::initializePopulationSeed(int popSize, pop_t &population, rng_t &rng, string seed) {
+pop_t& PlayfairGenetic::initializePopulationSeed(unsigned popSize, pop_t &population, rng_t &rng, string seed) {
 	population.clear();
 	population.reserve(popSize);
-	for(int i = 0; i < popSize; i++) {
+	for(unsigned i = 0; i < popSize; i++) {
 		population.push_back(seedKey(rng, seed));
 	}
 	return population;

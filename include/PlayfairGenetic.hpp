@@ -86,7 +86,7 @@ namespace PlayfairGenetic {
 	 * @param rng 			Reference to random number generator
 	 * @return 				Reference to population
 	 */
-	pop_t& initializePopulationRandom(int popSize, pop_t &population, rng_t &rng);
+	pop_t& initializePopulationRandom(unsigned popSize, pop_t &population, rng_t &rng);
 
 	/**
 	 * @brief Initialize a population from a seed
@@ -102,7 +102,7 @@ namespace PlayfairGenetic {
 	 * @param seed 			Seed for each member
 	 * @return 				Reference to population
 	 */
-	pop_t& initializePopulationSeed(int popSize, pop_t &population, rng_t &rng, string seed);
+	pop_t& initializePopulationSeed(unsigned popSize, pop_t &population, rng_t &rng, string seed);
 
 	/**
 	 * @brief Produce the next generation
