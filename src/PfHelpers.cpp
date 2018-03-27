@@ -6,6 +6,7 @@
 #include <chrono>
 #include <string.h>
 #include <unordered_map>
+#include <stdlib.h>
 
 using std::vector;
 using std::string;
@@ -52,6 +53,34 @@ namespace PfHelpers {
 			std::cout << population[i] << '\n';
 		}
 		return 0;
+	}
+
+    bool isInteger(const std::string& s) {
+	    std::string::const_iterator it = s.begin();
+	    while (it != s.end() && std::isdigit(*it)) ++it;
+	    return !s.empty() && it == s.end();
+	}
+
+	bool isDouble(const std::string& s) {
+	    std::string::const_iterator it = s.begin();
+	    bool used = false;
+	    while (it != s.end()) {
+	    	if(*it == '.') {
+	    		if(used) break; 
+	    		used = true;
+	    	} else if(!std::isdigit(*it)) {
+	    		break;
+	    	}
+    		++it;
+	    }
+	    return !s.empty() && it == s.end();
+	}
+
+	bool isRate(const std::string& s) {
+	    if(!isDouble(s)) return false;
+	    double rate = strtod(s.c_str(), NULL);
+	    if(rate < 0 || rate > 1) return false;
+	    return true;
 	}
 
 	template <typename Iterable>

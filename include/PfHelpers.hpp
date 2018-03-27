@@ -40,6 +40,11 @@ namespace PfHelpers {
 
 	int printPopulation(vector<string> &population);
 
+	bool isInteger(const std::string& s);
+
+	bool isDouble(const std::string& s);
+	
+	bool isRate(const std::string& s);
 	//	Iterates using .at()
 	//	Used on string, vector<char>, etc.
 	template <typename Iterable>
