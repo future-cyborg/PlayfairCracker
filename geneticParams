@@ -1,0 +1,6 @@
+children=12
+addRandom=2
+mutationType=0
+mutationRate=0.15
+killWorst=6
+keepBest=1
