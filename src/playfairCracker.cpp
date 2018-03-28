@@ -249,7 +249,7 @@ int main(int argc, char* argv[]) {
             return 2;
         }
        	fileReader.ignore(50, ' ');
-       	n = fileReader.gcount();
+       	n = fileReader.gcount() - 1;
 	} catch(std::ios_base::failure e) {
 		fprintf(stderr, "Error with frequency file '%s'", parse.nonOption(1));
 		return 2;
