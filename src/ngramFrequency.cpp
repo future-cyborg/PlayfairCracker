@@ -55,12 +55,12 @@ std::ifstream::pos_type fileSize(const std::string fileName) {
     return in.tellg(); 
 }
 
-enum  optionIndex { UNKNOWN, HELP, METHOD, INPUTFILE, OUTPUTFILE, N };
+enum  optionIndex { UNKNOWN, HELP, METHOD, TEXT, OUTPUTFILE, N };
 enum  method { COLLECT, VALID };
 const option::Descriptor usage[] = {
-{ UNKNOWN,   0,"",  "",       Arg::Unknown, "USAGE: ngramFrequency [OPTION]... -n N TEXT\n"
-                                            "       ngramFrequency [OPTION]... -i FILE -n N\n"
-                                            "       ngramFrequency [OPTION]... -v -i FILE -n N"},
+{ UNKNOWN,   0,"",  "",       Arg::Unknown, "USAGE: ngramFrequency [OPTION]... -n N FILE...\n"
+                                            "       ngramFrequency [OPTION]... -n N -t TEXT\n"
+                                            "       ngramFrequency [OPTION]... -v -n N FILE..."},
 { N,         0,"n", "n",      Arg::Numeric, "\nPARAMETERS:\n"
                                             "  -n,        \t"
                                             "\tN, the size of n-gram being worked with (i.e. 2 = bigram)"},
@@ -71,13 +71,13 @@ const option::Descriptor usage[] = {
                                             "\tRead file and collect n-gram frequencies"},
 { METHOD,    1,"v", "valid",  Arg::None,    "  -v,        \t--valid"
                                             "\tChecks if file contains valid n-gram counts" },
-{ INPUTFILE, 0,"i", "input",  Arg::NonEmpty,"  -i <FILE>, \t--input=<FILE>"},
+{ TEXT,      0,"t", "text",   Arg::NonEmpty,"  -t <FILE>, \t--text=<TEXT>"},
 { OUTPUTFILE,0,"o", "output", Arg::NonEmpty,"  -o <FILE>, \t--output=<FILE>"},
 { UNKNOWN,   0,"",  "",       Arg::None,
  "EXAMPLES:\n"
- "  ngramFrequency -n 2 \"collect n-gram frequencies!\"\n"
- "  ngramFrequency -c -n 3 -i english.txt -o trigrams.txt\n"
- "  ngramFrequency -v -n 4 -i trigrams.txt\n" },
+ "  ngramFrequency -n 2 -t \"collect n-gram frequencies!\"\n"
+ "  ngramFrequency -c -n 3 -o trigrams.txt english.txt\n"
+ "  ngramFrequency -v -n 4 trigrams.txt\n" },
 { 0, 0, 0, 0, 0, 0 } };
 
 int main(int argc, char* argv[]) {
@@ -106,37 +106,46 @@ int main(int argc, char* argv[]) {
     }
     unsigned n = atoi(options[N].last()->arg);
 
-    if(!options[INPUTFILE] && (parse.nonOptionsCount() == 0) ) {
-        fprintf(stderr, "Usage requires either input file or text.\n");
+    if(!options[TEXT] && (parse.nonOptionsCount() == 0) ) {
+        fprintf(stderr, "Usage requires either -t flag or file argument.\n");
         fprintf(stderr, "Try 'ngramFrequency --help' for more information.\n");
         return 1;
     }
 
-    const char* inputFile = options[INPUTFILE].last()->arg;
     try {
         FrequencyCollector fC(n);
 
         if(options[METHOD] && options[METHOD].last()->type() == VALID) {
-            if(!options[INPUTFILE]) {
-                fprintf(stderr, "Validation method requires input file.\n");
+            if(options[TEXT]) {
+                fprintf(stderr, "Validation method does not work with -t flag.\n");
                 fprintf(stderr, "Try 'ngramFrequency --help' for more information.\n");
                 return 1;
             }
-            
-            if(fC.validNgramFile(inputFile)) {
-                fprintf(stdout, "%s is a valid n-gram file for n = %d\n", inputFile, n);
-            } else {
-                fprintf(stdout, "%s is not a valid n-gram file for n = %d\n", inputFile, n);
+            if(parse.nonOptionsCount() == 0) {
+                fprintf(stderr, "Validation method requires file argument.\n");
+                fprintf(stderr, "Try 'ngramFrequency --help' for more information.\n");
+                return 1;
             }
-            return 0;
+            for(int i = 0; i < parse.nonOptionsCount(); i++) {
+                const char* inputFile = parse.nonOption(i);
+                if(fC.validNgramFile(inputFile)) {
+                    fprintf(stdout, "%s is a valid n-gram file for n = %d\n", inputFile, n);
+                } else {
+                    fprintf(stdout, "%s is not a valid n-gram file for n = %d\n", inputFile, n);
+                }
+            }
+            return 0;            
         }
 
-        if(options[INPUTFILE]) {
-            fC.collectNGramsFile(inputFile);
-        } else {
-            std::stringstream ss(parse.nonOption(0));
+        if(options[TEXT]) {
+            std::stringstream ss(options[TEXT].last()->arg);
             fC.collectNGrams(ss);
         }
+        
+        for(int i = 0; i < parse.nonOptionsCount(); i++) {
+            fC.collectNGramsFile(parse.nonOption(i));
+        }
+            
 
         if(options[OUTPUTFILE]) {
             fC.writeNGramCount(options[OUTPUTFILE].last()->arg);
