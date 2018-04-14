@@ -40,6 +40,10 @@ Key::Key(std::string keyWord, char doubleFill, char extraFill, char omitLetter, 
 			letterReplace = toupper(replaceLetter);
 		}
 	}
+	if(letterOmit == extraFill)
+		extraFill = letterReplace;
+	if(letterOmit == doubleFill)
+		doubleFill = letterReplace;
     generate();
 }
 
@@ -59,6 +63,11 @@ std::vector<char> Key::encrypt(const std::vector<char> &plainText) {
 		// Add buffer to the end of odd length message
 		if(++it == plainText.end()) {			
 			b = bufferExtra;
+			if(a == b) {
+				b++;
+				if(b == 91)
+					b = 65;
+			}
 		}
 		else {
 			b = *it;
@@ -67,7 +76,11 @@ std::vector<char> Key::encrypt(const std::vector<char> &plainText) {
 				b = bufferDouble;
 				doubleLetter = true;
 				// If the buffer letter is the same as the doubled letter!
-				if(a == b) b++;
+				if(a == b) {
+					b++;
+					if(b == 91)
+						b = 65;
+				}
 			}
 		}
 
