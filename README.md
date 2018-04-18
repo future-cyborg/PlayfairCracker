@@ -37,7 +37,7 @@ Use this program to *help* crack a message encoded with the Playfair cipher. Fre
 
 ## Acknowledgments 
 Helpful tools, thank you!
-[The Lean Mean C++ Option Parser](http://optionparser.sourceforge.net/)
-[PCG Random Number Generation for C++](http://www.pcg-random.org/)
-[Doxygen](http://www.stack.nl/~dimitri/doxygen/index.html)
-[CxxTest](http://cxxtest.com/)
+- [The Lean Mean C++ Option Parser](http://optionparser.sourceforge.net/)
+- [PCG Random Number Generation for C++](http://www.pcg-random.org/)
+- [Doxygen](http://www.stack.nl/~dimitri/doxygen/index.html)
+- [CxxTest](http://cxxtest.com/)
