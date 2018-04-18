@@ -26,7 +26,7 @@ VERSION=1.0
 PACKAGEDIR=playfairCracker-$(VERSION)
 TARBALL=../$(PACKAGEDIR).tar.gz
 
-all: playfair ngramFrequency playfairCracker
+all: playfair ngramFrequency playfairCracker doc
 
 playfair: $(OBJDIR)/playfair.o $(OBJDIR)/Key.o
 	$(CMD) $(OBJDIR)/playfair.o $(OBJDIR)/Key.o -o $@
@@ -49,7 +49,7 @@ $(OBJDIR)/playfairCracker.o: $(SRCDIR)/playfairCracker.cpp $(patsubst %, $(INCDI
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(INCDIR)/%.hpp $(patsubst %, $(INCDIR)/%.hpp, $(HELPER))
 	$(CMD) -c $< -o $@
 
-doc:
+doc: ; @which doxygen > /dev/null
 	doxygen
 
 clean:
