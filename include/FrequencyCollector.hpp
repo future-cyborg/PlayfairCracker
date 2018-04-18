@@ -50,9 +50,10 @@ public:
      * 
      * A file is valid if
      * @li All n-grams are of length n, as determined by object
-     * @li File contains no blank lines
      * @li No duplicate n-grams
      * @li Each line is formatted: "[n-gram] [number]"
+     * @li Blank lines and lines starting with a slash '/' are ignored
+     * @li File does not have to contain every n-gram
      * 
      * @b Example:
      * @code{.unparsed}

@@ -39,13 +39,6 @@ FrequencyCollector::FrequencyCollector(unsigned N) :
 FrequencyCollector::~FrequencyCollector() {}
 
 bool FrequencyCollector::validNgramFile(const char* fileName) {
-	try {
-		numFileLines(fileName);
-	} catch (const std::ifstream::failure e) {
-		std::cerr << e.what() << '\n';
-		return false;
-	}
-
 	std::ifstream fileReader(fileName);
 	if(fileReader.fail()) {
 		std::cerr << "Failed to open: " << fileName << '\n';
@@ -57,10 +50,11 @@ bool FrequencyCollector::validNgramFile(const char* fileName) {
 	while(!fileReader.eof()) {
 		std::string line, ngramString, countString;
 		std::getline(fileReader, line);
+		if(line.empty() || line.at(0) == '/') continue;
 
 		std::regex format("^[[:alpha:]]{" + std::to_string(n) + "} [[:digit:]]+$");
 		if(!std::regex_match(line, format)) {
-			std::cerr << "Line " << lineNum << " of " << fileName << "is of wrong format";
+			std::cerr << "Line " << lineNum << " of " << fileName << "is of wrong format\n";
 			return false;
 		}
 
@@ -99,6 +93,7 @@ int FrequencyCollector::readNgramCount(const char* fileName) {
 		//	Read each line, split line into - n-gram and count
 		std::string line, ngramString, countString;
 		std::getline(fileReader, line);
+		if(line.empty() || line.at(0) == '/') continue;
 		// 	Split the line
 		std::stringstream ss(line);
 		ss >> ngramString;
