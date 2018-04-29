@@ -27,7 +27,6 @@ Also has options to specify which letter will be inserted between doubles and/or
 ### ngramFrequency
 This is a helper program for the playfairCracker to collect and manage frequencies of n-grams for [frequency analysis](http://www.practicalcryptography.com/cryptanalysis/letter-frequencies-various-languages/english-letter-frequencies/). 
 The frequencies directory contains English n-gram frequencies already, but use this if you want to collect frequency analysis from any sample data. Feed it your own corpus, or selection of texts!
-#### TODO: Add functionality to add frequencies to a past frequency file.
 
 ### playfairCracker
 Use this program to *help* crack a message encoded with the Playfair cipher. Frequency analysis is used to determine how likely a given decrypted text is to English, which is its fitness score. The Playfair cipher's handling of double letters is likely to cause an incorrect key to produce a higher fitness score than the correct key, especially with a small message and/or many cases of double letters.

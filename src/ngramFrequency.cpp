@@ -148,6 +148,12 @@ int main(int argc, char* argv[]) {
             
 
         if(options[OUTPUTFILE]) {
+            FILE *file      ;
+            if((file = fopen(options[OUTPUTFILE].last()->arg, "r") )) {
+                fclose(file);
+                fC.readNgramCount(options[OUTPUTFILE].last()->arg);
+            }
+
             fC.writeNGramCount(options[OUTPUTFILE].last()->arg);
         } else {
             fC.printNGrams(std::cout);

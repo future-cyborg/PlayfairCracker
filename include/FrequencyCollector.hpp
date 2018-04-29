@@ -75,8 +75,9 @@ public:
      * 
      * Read from fileName that contains counts of n-gram occurrences. Counts are saved in
      *  freqs and totalCount is set. See validNgramFile() for details on valid file format.
-     * 
-     * @note Current n-gram frequencies stored in this object are overwritten.
+     *
+     * @note Any n-grams collected are added to the current counts. Call clear() prior to
+     *          this function if necessary.
      * 
      * @throw std::ios_base::failure    fileName cannot be opened
      * @throw Exception                 n-gram length contradiction

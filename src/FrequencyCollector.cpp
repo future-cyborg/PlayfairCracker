@@ -79,7 +79,7 @@ int FrequencyCollector::readNgramCount(const char* fileName) {
 		std::cerr << e.what() << '\n';
 		throw;
 	}
-	this->clear();
+	
 	freqs.reserve(numLines);
 
 	std::ifstream fileReader(fileName);
@@ -110,8 +110,10 @@ int FrequencyCollector::readNgramCount(const char* fileName) {
 			throw Exception("Error: Ngram length contradiction");
 		}
 		
-		// 	Add ngram:count to hashmap nGrams
-		freqs.insert(std::make_pair(ngramString.c_str(), count));
+		if(freqs.find(ngramString) == freqs.end()) {
+			freqs.insert(std::make_pair(ngramString, 0));
+		}
+		freqs.at(ngramString) += count;
 	}
 	return 0;
 }
