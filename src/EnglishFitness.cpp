@@ -62,6 +62,10 @@ score_t EnglishFitness::fitness(const FrequencyCollector &testFreq) const {
 		fitness += std::pow(std::abs(standardF - testF), 2);
 	}
 	delete[] perms;
+	if(!fitness) {
+		// Can't divide by 0
+		return 0;
+	}
 	//  Right now, lower fitness is better. Let's take the inverse. Now higher is better.
 	return 1 / fitness;
 }
@@ -74,6 +78,5 @@ score_t EnglishFitness::maxFitness(const FrequencyCollector &testFreq) const {
 	count_t testCount = testFreq.getCount();
 	count_t standardCount = sFreq.getCount();
 
-	count_t result = testCount > standardCount ? testCount : standardCount;
-	return (result * result) / 2.0; 
+	return 1/(2*std::pow(2*std::abs((1.0/testCount)-(1.0/standardCount)), 2));
 }
