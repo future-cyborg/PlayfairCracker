@@ -56,7 +56,7 @@ const option::Descriptor usage[] = {
 { METHOD,    1,"d", "decrypt",Arg::None,    "  -d,          \t--decrypt"},
 { KEY,       0,"k", "key",    Arg::NonEmpty,"  -k <KEY>,    \t--key=<KEY>"},
 { KEY,       0,"",  "keyword",Arg::NonEmpty,"               \t--keyword=<KEY>"},
-{ INPUTFILE, 0,"f", "file",   Arg::NonEmpty,"  -f <KEY>,    \t--file=<FILE>"},
+{ INPUTFILE, 0,"f", "file",   Arg::NonEmpty,"  -f <FILE>,    \t--file=<FILE>"},
 { OUTPUTFILE,0,"o", "output", Arg::NonEmpty,"  -o <FILE>,   \t--output=<FILE>"},
 { BIGRAM,    0,"b", "bigram", Arg::None,    "  -b,          \t--bigram"
                                             "\tPrint output as bigrams (e.g. BI GR AM)"},

@@ -111,7 +111,7 @@ namespace {
 		return scores;
 	}
 
-	std::pair<int, int> selectParents(const vector<score_t> scores, rng_t &rng) {
+	std::pair<int, int> selectParents(const vector<score_t> &scores, rng_t &rng) {
 		// 	Update to parent selection. Subtracting lowestFitnessValue from all fitness scores,
 		//		then we use their proportions
 		vector<score_t> cpyScores = scores;

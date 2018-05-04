@@ -88,13 +88,14 @@ const option::Descriptor usage[] = {
 { METHOD,   1,"d", "d",      Arg::Numeric,  "  -d <NUM>, \t--d=<NUM>"
 										    "\tAlgorithm runs until dormant for NUM generations"},
 { HELP,     0,"",  "help",   Arg::None,     "\nOPTIONS:\n"
-										    "			 \t--help"
+										    "\t--help"
                                             "\tPrint usage and exit"},
 { PARAMS,	0,"p", "params", Arg::NonEmpty, "  -p <FILE>,\t--params=<FILE>"
 											"\tFile with parameters. See documentation"},
-{ SEED,     0,"s",  "seed",  Arg::NonEmpty,  "  -s <ARG>, \t--seed=<ARG>"
-											"\tSeed to initialize population with" },
-{ VERBOSE,	0,"v", "verbose",Arg::None,     "  -v,       \t--verbose"},
+{ SEED,     0,"s",  "seed",  Arg::NonEmpty, "  -s <ARG>, \t--seed=<ARG>"
+											"\tSeed to initialize population with"},
+{ VERBOSE,	0,"v", "verbose",Arg::Numeric,  "  -v <NUM>,\t--verbose=<NUM>"
+											"\tEvery NUM generations, be verbose"},
 { CHILDS,	0,"c", "children",Arg::Numeric, "\nPARAMETERS: These take precedence over params file\n"
 											"  -c <NUM>, \t--children=<NUM>"
 											"\tNUM children produced each generation"},
@@ -148,6 +149,10 @@ int main(int argc, char* argv[]) {
     }
 
     unsigned verbose = options[VERBOSE].count();
+    unsigned verboseGen = 1;
+    if(verbose) {
+    	verboseGen = strtoul(options[VERBOSE].last()->arg, NULL, 10);
+    }
 
     if(!options[METHOD]) {
         fprintf(stderr, "Usage requires either -g or -s flag flag.\n");
@@ -242,8 +247,9 @@ int main(int argc, char* argv[]) {
 
 
 	unsigned n;
+	const char *fileName = parse.nonOption(1);
 	try {
-		std::ifstream fileReader(parse.nonOption(1));
+		std::ifstream fileReader(fileName);
 		if(!fileReader) {
             fprintf(stderr, "%s can not be opened.\n", parse.nonOption(1));
             return 2;
@@ -258,7 +264,6 @@ int main(int argc, char* argv[]) {
 	// Initialize standardFreq
 	// Get standardFrequencies
 	FrequencyCollector standardFreq(n);
-	char fileName[] = "frequencies/english_bigrams.txt";
 	try {
 		standardFreq.readNgramCount(fileName);
 	} catch (std::ifstream::failure e) {
@@ -275,6 +280,8 @@ int main(int argc, char* argv[]) {
 		std::cerr << e.what() << '\n';
 		return 2;
 	}
+	Key key;
+	key.sanitizeText(cipherText);
 
 	// RNG
 	pcg_extras::seed_seq_from<std::random_device> seed_source;
@@ -307,9 +314,11 @@ int main(int argc, char* argv[]) {
 	while(true) {
 		++generation;
 		if(numGens && generation > numGens) {
+			--generation;
 			break;
 		}
 		if(numDorm && dormant > numDorm) {
+			--generation;
 			break;
 		}
 
@@ -318,7 +327,7 @@ int main(int argc, char* argv[]) {
 			// Print each member and scores
 			vector<score_t> scores = PlayfairGenetic::fitScores(standardFreq, population, cipherText);
 			std::pair<string, score_t> bestIndex = PlayfairGenetic::bestMember(population, scores);
-			if(verbose) {
+			if(verbose && generation % verboseGen == 0) {
 				std::cout << "Generation " << generation << '\n';
 				if(verbose > 1) {
 					for(unsigned index = 0; index < population.size(); index++) {
