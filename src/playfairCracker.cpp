@@ -49,21 +49,6 @@ struct Arg: public option::Arg {
         return option::ARG_ILLEGAL;
     }
 
-    static option::ArgStatus Rate(const option::Option& option, bool msg) {
-    	char* endptr = 0;
-    	double num;
-    	if (option.arg != 0) {
-    		num = strtod(option.arg, &endptr);
-    	}
-    	if (endptr != option.arg && *endptr == 0) {
-    		if(num >= 0 && num <= 1) {
-    			return option::ARG_OK;
-    		}
-    		if(msg) printError("Option '", option, "' requires a value between 0.0 and 1.0\n");
-    	} else if(msg) printError("Option '", option, "' requires a numeric argument\n");
-    	return option::ARG_ILLEGAL;
-    }
-
     static option::ArgStatus NonEmpty(const option::Option& option, bool msg) {
         if (option.arg != 0 && option.arg[0] != 0)
           return option::ARG_OK;
@@ -74,7 +59,7 @@ struct Arg: public option::Arg {
 };
 
 enum  optionIndex { UNKNOWN, HELP, METHOD, OUTFILE, VERBOSE, PARAMS, SEED, RNG,
-	CHILDS, RANDOM, MUTATION, MUTRATE, KILL, BEST };
+	CHILDS, RANDOM, MUTATION, KILL, BEST };
 enum  method { GENS, DORM };
 const option::Descriptor usage[] = {
 { UNKNOWN,  0,"",  "",       Arg::Unknown,  "USAGE: playfairCracker -g NUM [OPTION]... CIPHER FREQ\n"
@@ -103,8 +88,6 @@ const option::Descriptor usage[] = {
 											"\tNUM random members added each generation"},
 { MUTATION,	0,"m", "mutation",Arg::Numeric, "  -m <NUM>, \t--mutation=<NUM>"
 											"\tMutation type, see documentation"},
-{ MUTRATE,	0,"r", "rate",	 Arg::Rate,     "  -r <NUM>, \t--rate=<NUM>"
-											"\tMutation rate, see documentation"},
 { KILL,  	0,"k", "kill",	 Arg::Numeric,  "  -k <NUM>, \t--kill=<NUM>"
 											"\tNUM worst members of population killed before parent selection"},
 { BEST, 	0,"b", "best",	 Arg::Numeric,  "  -b <NUM>, \t--best=<NUM>"
@@ -169,14 +152,13 @@ int main(int argc, char* argv[]) {
 	unsigned children;
 	unsigned addRandom;
 	unsigned mutationType;
-	double mutationRate;
 	unsigned killWorst;
 	unsigned keepBest;
 	std::unordered_map<string, string> paramMap;
 
     if(!options[PARAMS]) {
     	if(!options[CHILDS] && !options[RANDOM] && !options[MUTATION] &&
-    			!options[MUTRATE] && !options[KILL] && !options[BEST]) {
+    			!options[KILL] && !options[BEST]) {
 
     		fprintf(stderr, "Usage requires parameters file or all parameter flags.\n");
     		fprintf(stderr, "See documentation for more details.\n");
@@ -227,23 +209,7 @@ int main(int argc, char* argv[]) {
 	    	return 3;
 	} else keepBest = strtoul(options[BEST].last()->arg, NULL, 10);
 
-	if(!options[MUTRATE]) {
-		if(paramMap.find("mutationRate") != paramMap.end()) {
-			string value = (*paramMap.find("mutationRate")).second;
-			if(!PfHelpers::isRate(value)) {
-				fprintf(stderr, "'mutationRate' in parameters file requires a value between 0.0 and 1.0\n");
-				fprintf(stderr, "See documentation for more details.\n");
-				return 3;
-			}
-			mutationRate = strtod(value.c_str(), NULL);
-		} else {
-			fprintf(stderr, "No parameter 'mutationRate' found in parameters file.\n");
-			fprintf(stderr, "See documentation for more details.\n");
-			return 3;
-		}
-	} else mutationRate = strtod(options[MUTRATE].last()->arg, NULL);
-
-	GenParams params { children, addRandom, mutationType, mutationRate, killWorst, keepBest };
+	GenParams params { children, addRandom, mutationType, killWorst, keepBest };
 
 
 	unsigned n;

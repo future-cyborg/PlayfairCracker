@@ -33,12 +33,11 @@ typedef vector<string> pop_t;
  */
 enum MutationType {
 	/**
-	 * The swap mutation chooses select letters in the key and shuffles them.
-	 * The mutationRate affects the chance that a letter will be one that is shuffled.
+	 * The swap mutation chooses swaps two letters in the key.
 	 */
 	SWAP,
 	/**
-	 * A random substring of the key is inversed. mutationRate has no effect.
+	 * A random substring of the key is inversed.
 	 */
 	INVERSION
 };
@@ -54,14 +53,8 @@ struct GenParams {
 	unsigned numChildren;
 	/** The number of randomized keys added to population */
 	unsigned newRandom;
-	/** see mutationType */
+	/** see MutationType */
 	unsigned mutationType;
-	/**
-	 * Mutation is applied to each individual.
-	 * The effect of this rate depends on mutationType
-	 * @attention Must be in range (0.0 - 1.0)
-	 */
-	double mutationRate;
 	/**
 	 * The number of worst population members to be killed before the parent
 	 * 	selection step. Members have a proportional chance of being selected as

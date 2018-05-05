@@ -1,6 +1,5 @@
-children=12
-addRandom=2
+children=14
+addRandom=0
 mutationType=0
-mutationRate=0.15
-killWorst=6
+killWorst=8
 keepBest=1

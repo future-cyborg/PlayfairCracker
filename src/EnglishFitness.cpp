@@ -54,7 +54,7 @@ score_t EnglishFitness::fitness(const FrequencyCollector &testFreq) const {
 			}
 		}
 		
-		//  Collect the standard and test rate of permutation
+		//  Collect the standard and test freq of permutation
 		double standardF = sFreq.frequency(perm);
 		double testF = testFreq.frequency(perm);
 

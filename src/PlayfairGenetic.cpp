@@ -20,7 +20,6 @@
 #include <sstream>
 
 #define ALPHABET "ABCDEFGHIKLMNOPQRSTUVWXYZ"
-#define INEFFECTIVE 100
 
 using std::vector;
 using std::unordered_map;
@@ -187,18 +186,15 @@ namespace {
 	string& swapMutation(string &key, const GenParams &genParams, rng_t &rng) {
 		vector<char> swapLetters;
 		vector<char> swapIndicies;
-		std::uniform_real_distribution<double> urd(0.0, 1.0);
-		for(unsigned index = 0; index < key.size(); index++) {
-			double rand = urd(rng);
-			if(rand < genParams.mutationRate) {
-				swapLetters.push_back(key[index]);
-				swapIndicies.push_back(index);
-			}
+		std::uniform_int_distribution<int> uid(0, 24);
+		int first = uid(rng);
+		int second = uid(rng);
+		while(first == second) {
+			second = uid(rng);
 		}
-		std::shuffle(swapLetters.begin(), swapLetters.end(), rng);
-		for(unsigned i = 0; i < swapIndicies.size(); i++) {
-			key[swapIndicies[i]] = swapLetters[i];
-		}
+		char temp = key[first];
+		key[first] = key[second];
+		key[second] = temp;
 		if(!PfHelpers::validKey(key)) {
 			throw InvalidKeyException("InvalidKeyException in swapMutation()");
 		}
@@ -209,6 +205,9 @@ namespace {
 		std::uniform_int_distribution<int> uid(0,key.size() - 1);
 		int start = uid(rng);
 		int end = uid(rng);
+		while(start == end) {
+			end = uid(rng);
+		}
 		if(start > end) {
 			int temp = start;
 			start = end;
@@ -225,31 +224,20 @@ namespace {
 	pop_t mutation(pop_t &population, const GenParams &genParams, rng_t &rng) {
 		unsigned index = 0;
 		while(index < population.size()) {
-			string keyBefore = population[index];
 			string key = population[index];
-			// Count how many times the mutation doesn't change the key
-			int count = -1;
-			while(keyBefore.compare(key) == 0) {
-				// If mutation is ineffective this many times in a row, throw
-				if(count++ > INEFFECTIVE) {
-					string msg = "Mutation rate ineffective. INEFFECTIVE attempts to mutate key '";
-					msg = msg + key + "' were unsuccessful.";
-					throw Exception(msg.c_str());
-				}
 
-				switch(genParams.mutationType) {
-					case SWAP: {
-						swapMutation(key, genParams, rng);
-						break;
-					}
-					case INVERSION: {
-						inversionMutation(key, genParams, rng);					
-						break;
-					}
-					default: {
-						std::cerr << "Invalid mutationType: " << genParams.mutationType << '\n';
-						throw InvalidParameters("Invalid Parameters: mutationType");
-					}
+			switch(genParams.mutationType) {
+				case SWAP: {
+					swapMutation(key, genParams, rng);
+					break;
+				}
+				case INVERSION: {
+					inversionMutation(key, genParams, rng);					
+					break;
+				}
+				default: {
+					std::cerr << "Invalid mutationType: " << genParams.mutationType << '\n';
+					throw InvalidParameters("Invalid Parameters: mutationType");
 				}
 			}
 			population[index] = key;
